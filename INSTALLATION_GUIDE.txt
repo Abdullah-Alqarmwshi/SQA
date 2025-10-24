@@ -1,0 +1,288 @@
+﻿╗
+║                                                                              ║
+║                    CLASSCONNECT INSTALLATION GUIDE                           
+                   Digital Learning Management System                         
+                                                                              
+═
+
+ SYSTEM OVERVIEW
+
+
+ClassConnect is a complete web-based learning management system featuring:
+
+ Three User Roles: Admin, Teacher, and Student
+ User Management System with registration and authentication
+ Profile Management with edit and delete capabilities
+ Lesson Management Module (teachers can create lessons)
+ Assignment Management System (create, submit, grade)
+ Announcement System for communication
+ Professional, responsive UI design
+ Secure password hashing and session management
+
+
+ STEP 1: FIX MYSQL ERROR
+
+
+Your XAMPP is showing "MySQL shutdown unexpectedly" error. Here are two solutions:
+
+METHOD 1: Change MySQL Port (Quick Fix)
+─
+1. Open XAMPP Control Panel
+2. Click "Config" button next to MySQL module
+3. Select "my.ini" from the dropdown
+4. Find this line (appears TWICE in the file):
+   port=3306
+5. Change BOTH instances to:
+   port=3307
+6. Save the file and close
+7. Click "Start" on MySQL in XAMPP Control Panel
+
+ IMPORTANT: If you use Method 1, you must also update the port in:
+   C:\xampp\htdocs\mywebsite\config\database.php
+   Change: define('DB_PORT', '3306');
+   To:     define('DB_PORT', '3307');
+
+
+METHOD 2: Complete MySQL Reset (If Method 1 fails)
+
+1. Stop all XAMPP services
+2. Navigate to: C:\xampp\mysql
+3. Find the "data" folder
+4. Rename "data" to "data_old" (backup)
+5. Copy the "backup" folder
+6. Rename the copy to "data"
+7. Open XAMPP Control Panel
+8. Start MySQL
+
+ Verify MySQL is running (green highlight in XAMPP Control Panel)
+
+
+ STEP 2: SETUP DATABASE
+
+
+Once MySQL is running successfully:
+
+1. Make sure Apache is also running in XAMPP
+2. Open your web browser
+3. Go to: http://localhost/mywebsite/setup.php
+4. Wait for the setup to complete
+5. You should see: "Database Setup Complete!"
+
+
+ STEP 3: LOGIN TO THE SYSTEM
+
+
+Default Admin Account:
+
+   Username: admin
+   Password: admin
+
+1. Go to: http://localhost/mywebsite/
+2. Login with the admin credentials above
+3. You'll be redirected to the Admin Dashboard
+
+
+ STEP 4: USER MANAGEMENT
+
+
+ADMIN CAPABILITIES:
+
+ Register new teachers
+ View all users
+ Manage system announcements
+ View statistics (teachers, students, lessons, assignments)
+ Edit profile and change password
+
+To Register a Teacher:
+1. Login as admin
+2. Click "Register Teacher" in the sidebar
+3. Fill in teacher details
+4. Click "Register Teacher" button
+5. Teacher can now login with provided credentials
+
+
+STUDENT REGISTRATION (Self-Service):
+
+1. Go to: http://localhost/mywebsite/
+2. Click "Register as Student" link
+3. Fill in registration form:
+   - Full Name
+   - Username
+   - Email
+   - Phone (optional)
+   - Address (optional)
+   - Password (minimum 6 characters)
+   - Confirm Password
+4. Click "Register" button
+5. Login with new credentials
+
+
+ SYSTEM FEATURES
+
+
+ADMIN DASHBOARD:
+
+ View total teachers, students, lessons, and assignments
+ Register new teachers
+ Manage users
+ Post announcements
+ Edit profile settings
+
+TEACHER DASHBOARD:
+
+ Create and manage lessons
+ Create and grade assignments
+ View submissions from students
+ Post announcements
+ Edit profile or delete account
+
+STUDENT DASHBOARD:
+
+ Browse available lessons
+ View and submit assignments
+ Check submission status and grades
+ View announcements
+ Edit profile or delete account
+
+
+ SECURITY FEATURES
+
+
+ Password Hashing (bcrypt)
+ Prepared Statements (SQL Injection Prevention)
+ Session Management
+ Role-Based Access Control
+ Input Validation and Sanitization
+ CSRF Protection
+
+
+ FILE STRUCTURE
+
+
+mywebsite/
+ config/
+    database.php      (Database configuration)
+    session.php       (Session management)
+ admin/
+    dashboard.php
+    register_teacher.php
+    profile.php
+    ...
+ teacher/
+    dashboard.php
+    lessons.php
+    assignments.php
+    profile.php
+    delete_account.php
+ student/
+    dashboard.php
+    lessons.php
+    assignments.php
+    submissions.php
+    profile.php
+    delete_account.php
+ assets/
+    css/
+        style.css     (Professional styling)
+ uploads/
+    profile/
+    lessons/
+    assignments/
+ index.php             (Login page)
+ register.php          (Student registration)
+ logout.php
+ setup.php             (Database setup)
+
+
+ PROFILE MANAGEMENT
+
+
+All users can:
+
+ Edit personal information (name, email, phone, address)
+ Change password
+ Delete account (Teachers and Students only)
+
+To Edit Profile:
+1. Login to your account
+2. Click "Profile Settings" in sidebar
+3. Update information
+4. Click "Update Profile"
+
+To Delete Account:
+1. Go to Profile Settings
+2. Scroll to "Danger Zone"
+3. Click "Delete My Account"
+4. Confirm with password
+5. Account and all related data will be permanently deleted
+
+
+ ACCESSING THE SYSTEM
+
+
+Main Login Page:    http://localhost/mywebsite/
+Student Register:   http://localhost/mywebsite/register.php
+Database Setup:     http://localhost/mywebsite/setup.php
+
+After Login, users are redirected based on their role:
+ Admin     http://localhost/mywebsite/admin/dashboard.php
+ Teacher   http://localhost/mywebsite/teacher/dashboard.php
+ Student   http://localhost/mywebsite/student/dashboard.php
+
+
+ TROUBLESHOOTING
+
+
+Problem: "Connection failed" error
+Solution: Check if MySQL is running in XAMPP
+
+Problem: "Table doesn't exist" error
+Solution: Run setup.php again
+
+Problem: Can't login
+Solution: Make sure you ran setup.php to create admin account
+
+Problem: Page not found (404)
+Solution: Check Apache is running and URL is correct
+
+Problem: Changes not saving
+Solution: Check database connection and permissions
+
+
+ SYSTEM REQUIREMENTS
+
+
+ XAMPP (Apache + MySQL + PHP)
+ PHP 7.4 or higher
+ MySQL 5.7 or higher
+ Modern web browser (Chrome, Firefox, Edge, Safari)
+
+
+ NEXT STEPS
+
+
+The core system is now complete with:
+ Authentication system (Login/Register/Logout)
+ Three user roles (Admin/Teacher/Student)
+ Profile management (Edit/Delete)
+ Database structure
+ Professional UI design
+
+Additional modules ready to implement:
+ Lesson Management (Teacher creates lessons, Students view)
+ Assignment Management (Create, Submit, Grade)
+ Announcement System (Communication hub)
+
+These can be added based on your needs!
+
+
+
+
+Created by: GitHub Copilot
+Date: October 20, 2025
+Version: 1.0
+
+For questions or issues, refer to this guide first.
+Happy teaching and learning with ClassConnect! 
+
+
