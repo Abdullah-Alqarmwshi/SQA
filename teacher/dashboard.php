@@ -30,7 +30,7 @@ $recent_lessons = $conn->query("SELECT * FROM lessons WHERE teacher_id=$user_id 
             </div>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php" class="active">Dashboard</a></li>
-                <li><a href="lessons.php">My Lessons</a></li>
+                <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php">Assignments</a></li>
                 <li><a href="announcements.php">Announcements</a></li>
                 <li><a href="profile.php">Profile Settings</a></li>
