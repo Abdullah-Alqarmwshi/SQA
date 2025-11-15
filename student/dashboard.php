@@ -10,8 +10,6 @@ $lessons_count = $conn->query("SELECT COUNT(*) as count FROM lessons")->fetch_as
 $my_submissions = $conn->query("SELECT COUNT(*) as count FROM submissions WHERE student_id=$user_id")->fetch_assoc()['count'];
 $pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments WHERE id NOT IN (SELECT assignment_id FROM submissions WHERE student_id=$user_id)")->fetch_assoc()['count'];
 
-// Get recent lessons
-$recent_lessons = $conn->query("SELECT l.*, u.full_name as teacher_name FROM lessons l JOIN users u ON l.teacher_id = u.id ORDER BY l.created_at DESC LIMIT 5");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +28,7 @@ $recent_lessons = $conn->query("SELECT l.*, u.full_name as teacher_name FROM les
             </div>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php" class="active">Dashboard</a></li>
-                <li><a href="lessons.php">Browse Lessons</a></li>
+                <li><a href="lesson.php">Lessons</a></li>
                 <li><a href="assignments.php">Assignments</a></li>
                 <li><a href="submissions.php">My Submissions</a></li>
                 <li><a href="announcements.php">Announcements</a></li>
@@ -62,40 +60,18 @@ $recent_lessons = $conn->query("SELECT l.*, u.full_name as teacher_name FROM les
                     <div class="stat-value"><?php echo $pending_assignments; ?></div>
                 </div>
             </div>
-            
+
+            <!-- Optional: simple welcome card instead of Recent Lessons -->
+            <!--
             <div class="card">
                 <div class="card-header">
-                    <h3>Recent Lessons</h3>
+                    <h3>Welcome!</h3>
                 </div>
-                <?php if ($recent_lessons->num_rows > 0): ?>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Teacher</th>
-                            <th>Description</th>
-                            <th>Posted</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($lesson = $recent_lessons->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($lesson['title']); ?></td>
-                            <td><?php echo htmlspecialchars($lesson['teacher_name']); ?></td>
-                            <td><?php echo htmlspecialchars(substr($lesson['description'], 0, 40)) . '...'; ?></td>
-                            <td><?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></td>
-                            <td>
-                                <a href="lessons.php?view=<?php echo $lesson['id']; ?>" class="btn btn-secondary" style="padding: 6px 12px;">View</a>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-                <?php else: ?>
-                <p style="text-align: center; padding: 20px; color: #666;">No lessons available yet.</p>
-                <?php endif; ?>
+                <p style="padding: 20px; color: #666;">
+                    Use the sidebar to browse lessons, view assignments, and check your submissions.
+                </p>
             </div>
+            -->
         </main>
     </div>
 </body>

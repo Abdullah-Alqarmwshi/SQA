@@ -10,8 +10,6 @@ $lessons_count = $conn->query("SELECT COUNT(*) as count FROM lessons WHERE teach
 $assignments_count = $conn->query("SELECT COUNT(*) as count FROM assignments WHERE teacher_id=$user_id")->fetch_assoc()['count'];
 $students_count = $conn->query("SELECT COUNT(*) as count FROM users WHERE role='student'")->fetch_assoc()['count'];
 
-// Get recent lessons
-$recent_lessons = $conn->query("SELECT * FROM lessons WHERE teacher_id=$user_id ORDER BY created_at DESC LIMIT 5");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,38 +59,18 @@ $recent_lessons = $conn->query("SELECT * FROM lessons WHERE teacher_id=$user_id 
                     <div class="stat-value"><?php echo $students_count; ?></div>
                 </div>
             </div>
-            
+
+            <!-- You can optionally add some welcome text here -->
+            <!--
             <div class="card">
                 <div class="card-header">
-                    <h3>Recent Lessons</h3>
+                    <h3>Welcome back!</h3>
                 </div>
-                <?php if ($recent_lessons->num_rows > 0): ?>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($lesson = $recent_lessons->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($lesson['title']); ?></td>
-                            <td><?php echo htmlspecialchars(substr($lesson['description'], 0, 50)) . '...'; ?></td>
-                            <td><?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></td>
-                            <td>
-                                <a href="lessons.php?view=<?php echo $lesson['id']; ?>" class="btn btn-secondary" style="padding: 6px 12px;">View</a>
-                            </td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-                <?php else: ?>
-                <p style="text-align: center; padding: 20px; color: #666;">No lessons created yet. <a href="lessons.php">Create your first lesson</a></p>
-                <?php endif; ?>
+                <p style="padding: 20px; color: #666;">
+                    Use the sidebar to manage your lessons, assignments and announcements.
+                </p>
             </div>
+            -->
         </main>
     </div>
 </body>

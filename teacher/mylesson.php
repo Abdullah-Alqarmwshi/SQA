@@ -5,178 +5,266 @@ require_once '../config/database.php';
 
 $user_id = $_SESSION['user_id'];
 $lessons = $conn->query("SELECT * FROM lessons WHERE teacher_id=$user_id ORDER BY created_at DESC");
+
+$popupMessage = '';
+if (isset($_GET['updated'])) $popupMessage = 'Lesson updated successfully!';
+if (isset($_GET['deleted'])) $popupMessage = 'Lesson deleted successfully!';
+if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Lessons | ClassConnect</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Lessons - ClassConnect</title>
 
-  <style>
-    body {
-      background-color: #f7f9fc;
-      font-family: 'Poppins', sans-serif;
-      display: flex;
-    }
-    .sidebar {
-      width: 230px;
-      height: 100vh;
-      background: linear-gradient(to bottom, #5b5de6, #8f65e7);
-      color: #fff;
-      padding: 25px 20px;
-      position: fixed;
-    }
-    .sidebar h4 {
-      font-weight: 700;
-      margin-bottom: 40px;
-    }
-    .sidebar a {
-      display: block;
-      text-decoration: none;
-      color: #dcdcff;
-      padding: 10px 15px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      transition: 0.2s;
-    }
-    .sidebar a.active, .sidebar a:hover {
-      background-color: #ffffff33;
-      color: #fff;
-    }
-    .main {
-      margin-left: 250px;
-      padding: 40px;
-      width: calc(100% - 250px);
-    }
-    .btn-create {
-      background-color: #5b5de6;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: 0.2s;
-    }
-    .btn-create:hover {
-      background-color: #4748d6;
-    }
-    .lesson-card {
-      background-color: #fff;
-      border-radius: 12px;
-      padding: 20px 25px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-    .lesson-card h5 {
-      margin: 0;
-      font-weight: 600;
-      color: #333;
-    }
-    .lesson-card p {
-      margin: 4px 0 8px;
-      color: #777;
-    }
-  </style>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+/* PAGE SPACING */
+.main-content {
+    padding: 35px 50px;
+}
+
+/* PAGE HEADER */
+.page-title {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* CREATE BUTTON */
+.btn-create {
+    background: #5b5de6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 500;
+}
+.btn-create:hover {
+    background: #4748d6;
+}
+
+/* LESSON CARD */
+.lesson-card {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 20px 25px;
+    margin: 20px auto;
+    max-width: 900px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.lesson-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.lesson-desc {
+    font-size: 15px;
+    color: #777;
+    margin-top: 5px;
+}
+
+/* BUTTON SPACING */
+.lesson-card .btn {
+    margin-left: 8px;
+}
+
+/* MODAL FIX */
+.modal-content {
+    border-radius: 15px;
+}
+.modal-body label {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.modal-body input,
+.modal-body textarea,
+.modal-body select {
+    background: #f8f9fc;
+    border: 1px solid #dcdfe6;
+    border-radius: 8px;
+}
+
+/* POPUP MESSAGE */
+.center-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #28a745;
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 10px;
+    font-weight: 500;
+    opacity: 0;
+    z-index: 2000;
+    animation: fadeInOut 3s forwards;
+}
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -55%); }
+    10% { opacity: 1; transform: translate(-50%, -50%); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -45%); }
+}
+</style>
 </head>
+
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <h4>ClassConnect</h4>
-    <a href="dashboard.php">Dashboard</a>
-    <a href="mylesson.php" class="active">Lesson</a>
-    <a href="assignments.php">Assignment</a>
-    <a href="announcements.php">Announcement</a>
-    <a href="profile.php">Profile</a>
-    <a href="../logout.php">Logout</a>
-  </div>
+<div class="dashboard">
 
-  <!-- Main -->
-  <div class="main">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>My Lessons</h2>
-      <button class="btn-create" data-bs-toggle="modal" data-bs-target="#addLessonModal">+ Create New Lesson</button>
-    </div>
-
-    <!-- Alerts -->
-    <?php if (isset($_GET['added'])): ?>
-      <div class="alert alert-success">✅ Lesson added successfully!</div>
-    <?php elseif (isset($_GET['updated'])): ?>
-      <div class="alert alert-info">✏️ Lesson updated successfully!</div>
-    <?php elseif (isset($_GET['deleted'])): ?>
-      <div class="alert alert-success">🗑️ Lesson deleted successfully!</div>
-    <?php endif; ?>
-
-    <!-- Lessons -->
-    <?php if ($lessons->num_rows > 0): ?>
-      <?php while ($lesson = $lessons->fetch_assoc()): ?>
-        <div class="lesson-card">
-          <h5><?php echo htmlspecialchars($lesson['title']); ?></h5>
-          <p><?php echo htmlspecialchars(substr($lesson['description'], 0, 120)); ?>...</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="text-muted"><?php echo date('M d, Y', strtotime($lesson['created_at'])); ?></span>
-            <div>
-              <?php if (!empty($lesson['file_path'])): ?>
-                <a href="../uploads/<?php echo htmlspecialchars($lesson['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-primary">View</a>
-              <?php endif; ?>
-              <a href="edit_lesson.php?id=<?php echo $lesson['id']; ?>" class="btn btn-sm btn-outline-success">Edit</a>
-              <form action="delete_lesson.php" method="POST" style="display:inline;" onsubmit="return confirmDelete();">
-                <input type="hidden" name="id" value="<?php echo $lesson['id']; ?>">
-                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-              </form>
-            </div>
-          </div>
+    <!-- SIDEBAR (exact from dashboard.php) -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>ClassConnect</h2>
+            <p>Teacher Panel</p>
         </div>
-      <?php endwhile; ?>
-    <?php else: ?>
-      <p class="text-muted mt-3 text-center">No lessons yet. Create your first one!</p>
-    <?php endif; ?>
-  </div>
+        <ul class="sidebar-menu">
+            <li><a href="dashboard.php">Dashboard</a></li>
+            <li><a href="mylesson.php" class="active">My Lessons</a></li>
+            <li><a href="assignments.php">Assignments</a></li>
+            <li><a href="announcements.php">Announcements</a></li>
+            <li><a href="profile.php">Profile Settings</a></li>
+            <li><a href="../logout.php">Logout</a></li>
+        </ul>
+    </aside>
 
-  <!-- Add Lesson Modal -->
-  <div class="modal fade" id="addLessonModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content p-3">
-        <form action="add_lesson.php" method="POST" enctype="multipart/form-data">
-          <div class="modal-header">
-            <h4>Add Lesson</h4>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label>Title</label>
-              <input type="text" name="title" class="form-control" required>
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR (same as dashboard) -->
+        <div class="topbar">
+            <h1>My Lessons</h1>
+            <div class="user-info">
+                <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
+                <span><?php echo $_SESSION['full_name']; ?></span>
             </div>
-            <div class="mb-3">
-              <label>Description</label>
-              <textarea name="description" class="form-control" rows="3" required></textarea>
-            </div>
-            <div class="mb-3">
-              <label>Attachment (optional)</label>
-              <input type="file" name="file" class="form-control">
-            </div>
+        </div>
+
+        <!-- POPUP -->
+        <?php if (!empty($popupMessage)): ?>
+            <div class="center-popup"><?php echo $popupMessage; ?></div>
+        <?php endif; ?>
+
+        <!-- HEADER + BUTTON -->
+        <div class="d-flex justify-content-end align-items-center mt-4 mb-3">
+    <button class="btn-create" data-bs-toggle="modal" data-bs-target="#addLessonModal">
+        + Create Lesson
+    </button>
+</div>
+
+
+        <!-- LESSON LIST -->
+        <?php if ($lessons->num_rows > 0): ?>
+            <?php while ($lesson = $lessons->fetch_assoc()): ?>
+                
+                <div class="lesson-card">
+
+                    <div class="lesson-title">
+                        <?= htmlspecialchars($lesson['title']); ?>
+                    </div>
+
+                    <div class="lesson-desc">
+                        <?= htmlspecialchars(substr($lesson['description'], 0, 120)); ?>...
+                    </div>
+
+                    <small class="text-muted d-block mt-1 mb-3">
+                        <?= date("M d, Y", strtotime($lesson['created_at'])); ?>
+                    </small>
+
+                    <div>
+                        <?php if (!empty($lesson['file_path'])): ?>
+                            <a href="../uploads/<?= $lesson['file_path']; ?>" 
+                               class="btn btn-sm btn-outline-primary" 
+                               target="_blank">View</a>
+                        <?php endif; ?>
+
+                        <a href="edit_lesson.php?id=<?= $lesson['id']; ?>" 
+                           class="btn btn-sm btn-outline-success">Edit</a>
+
+                        <form action="delete_lesson.php" method="POST" style="display:inline;"
+                              onsubmit="return confirm('Delete this lesson?')">
+                            <input type="hidden" name="id" value="<?= $lesson['id']; ?>">
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+
+                </div>
+
+            <?php endwhile; ?>
+        <?php else: ?>
+            <p class="text-muted">No lessons found.</p>
+        <?php endif; ?>
+
+    </main>
+</div>
+
+
+<!-- ADD LESSON MODAL -->
+<div class="modal fade" id="addLessonModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content p-3">
+
+      <form action="add_lesson.php" method="POST" enctype="multipart/form-data">
+
+        <div class="modal-header">
+          <h4>Add Lesson</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <div class="mb-3">
+            <label>Title</label>
+            <input type="text" name="title" class="form-control" required>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-success">Save Lesson</button>
+
+          <div class="mb-3">
+            <label>Category</label>
+            <select name="category" class="form-control" required>
+              <option value="" disabled selected>Select category</option>
+              <option value="Science">Science</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="English">English</option>
+              <option value="History">History</option>
+              <option value="Geography">Geography</option>
+              <option value="ICT">ICT</option>
+              <option value="Others">Others</option>
+            </select>
           </div>
-        </form>
-      </div>
+
+          <div class="mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label>Attachment (optional)</label>
+            <input type="file" name="file" class="form-control">
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Save Lesson</button>
+        </div>
+
+      </form>
+
     </div>
   </div>
+</div>
 
-  <script>
-  function confirmDelete() {
-    return confirm("⚠️ Are you sure you want to delete this lesson?");
-  }
-  </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 <?php $conn->close(); ?>
-
-
-
