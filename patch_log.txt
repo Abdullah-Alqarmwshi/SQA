@@ -1,0 +1,1 @@
+Patching announcements_messages.php and manage_announcements.php for UI fixes: search icon pointer-events, stronger no-underline rule, action button styles in manage_announcements.php.

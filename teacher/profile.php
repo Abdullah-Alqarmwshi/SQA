@@ -89,12 +89,13 @@ $panel_name = ucfirst($role) . ' Panel';
                 <?php elseif ($role == 'teacher'): ?>
                     <li><a href="lessons.php">My Lessons</a></li>
                     <li><a href="assignments.php">Assignments</a></li>
+                    <li><a href="manage_announcements.php">Manage Announcements</a></li>
                 <?php else: ?>
                     <li><a href="lessons.php">Browse Lessons</a></li>
                     <li><a href="assignments.php">Assignments</a></li>
                     <li><a href="submissions.php">My Submissions</a></li>
                 <?php endif; ?>
-                <li><a href="announcements.php">Announcements</a></li>
+                <li><a href="announcements_messages.php">View Announcements & Messages</a></li>  
                 <li><a href="profile.php" class="active">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>

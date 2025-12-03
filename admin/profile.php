@@ -94,7 +94,7 @@ $panel_name = ucfirst($role) . ' Panel';
                     <li><a href="assignments.php">Assignments</a></li>
                     <li><a href="submissions.php">My Submissions</a></li>
                 <?php endif; ?>
-                <li><a href="announcements.php">Announcements</a></li>
+                <li><a href="announcements_messages.php">Manage Announcements</a></li>  
                 <li><a href="profile.php" class="active">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>

@@ -30,7 +30,8 @@ $students_count = $conn->query("SELECT COUNT(*) as count FROM users WHERE role='
                 <li><a href="dashboard.php" class="active">Dashboard</a></li>
                 <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php">Assignments</a></li>
-                <li><a href="announcements.php">Announcements</a></li>
+                <li><a href="manage_announcements.php">Manage Announcements</a></li>
+                <li><a href="announcements_messages.php">View Announcements & Messages</a></li>  
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
