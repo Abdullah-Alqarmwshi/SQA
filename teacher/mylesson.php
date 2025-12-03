@@ -129,7 +129,7 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="mylesson.php" class="active">My Lessons</a></li>
             <li><a href="assignments.php">Assignments</a></li>
-            <li><a href="announcements.php">Announcements</a></li>
+            <li><a href="announcements_messages.php">Announcements</a></li>
             <li><a href="profile.php">Profile Settings</a></li>
             <li><a href="../logout.php">Logout</a></li>
         </ul>

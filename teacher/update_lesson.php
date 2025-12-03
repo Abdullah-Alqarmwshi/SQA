@@ -8,8 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description']);
     $file_name = '';
 
-    $res = $conn->query("SELECT file_path FROM lessons WHERE id=$id");
-    $old = $res->fetch_assoc()['file_path'];
+    $res = $conn->query("SELECT content FROM lessons WHERE id=$id");
+    $old = $res->fetch_assoc()['content'];
 
     if (!empty($_FILES['file']['name'])) {
         $upload_dir = "../uploads/";
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $file_name = $old;
     }
 
-    $stmt = $conn->prepare("UPDATE lessons SET title=?, description=?, file_path=?, updated_at=NOW() WHERE id=?");
+    $stmt = $conn->prepare("UPDATE lessons SET title=?, description=?, content=?, updated_at=NOW() WHERE id=?");
     $stmt->bind_param("sssi", $title, $description, $file_name, $id);
     $stmt->execute();
     $stmt->close();

@@ -205,9 +205,10 @@ while($row = $result->fetch_assoc()) {
             </div>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="lessons.php">My Lessons</a></li>
-                <li><a href="assignments.php" class="active">Assignments</a></li>
-                <li><a href="announcements.php">Announcements</a></li>
+                <li><a href="lesson.php">Lesson</a></li>
+                <li><a href="assignments.php" class="active">Assignment</a></li>
+                <li><a href="submissions.php">Submissions</a></li>
+                <li><a href="announcements_messages.php">Announcement</a></li>
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>

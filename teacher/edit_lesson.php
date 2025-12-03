@@ -17,9 +17,6 @@ if (!$res || $res->num_rows === 0) {
     exit;
 }
 $lesson = $res->fetch_assoc();
-
-// Categories
-$categories = ["Science","Mathematics","English","History","Geography","ICT","Others"];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -105,7 +102,7 @@ $categories = ["Science","Mathematics","English","History","Geography","ICT","Ot
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="mylesson.php" class="active">My Lessons</a></li>
             <li><a href="assignments.php">Assignments</a></li>
-            <li><a href="announcements.php">Announcements</a></li>
+            <li><a href="announcements_messages.php">Announcements</a></li>
             <li><a href="profile.php">Profile Settings</a></li>
             <li><a href="../logout.php">Logout</a></li>
         </ul>

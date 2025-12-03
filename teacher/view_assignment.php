@@ -56,9 +56,9 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             </div>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="lessons.php">My Lessons</a></li>
+                <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php" class="active">Assignments</a></li>
-                <li><a href="announcements.php">Announcements</a></li>
+                <li><a href="announcements_messages.php">Announcements</a></li>
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>

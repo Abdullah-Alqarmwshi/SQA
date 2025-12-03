@@ -5,7 +5,6 @@ require_once '../config/database.php';
 
 // Get filters
 $search        = isset($_GET['q']) ? trim($_GET['q']) : '';
-$filter_course = isset($_GET['course']) ? trim($_GET['course']) : '';
 $filter_type   = isset($_GET['type']) ? trim($_GET['type']) : '';
 
 // BASE QUERY FOR LIST
@@ -22,26 +21,17 @@ if ($search !== '') {
     $query .= " AND (l.title LIKE '%$safe%' OR l.description LIKE '%$safe%' OR u.full_name LIKE '%$safe%')";
 }
 
-// Filter by Course (category)
-if ($filter_course !== '') {
-    $safe = $conn->real_escape_string($filter_course);
-    $query .= " AND l.category = '$safe'";
-}
-
 // Filter by Type (file extension)
 if ($filter_type !== '') {
     if ($filter_type === "video") {
-        $query .= " AND (l.file_path LIKE '%.mp4' OR l.file_path LIKE '%.mov' OR l.file_path LIKE '%.avi' OR l.file_path LIKE '%.mkv' OR l.file_path LIKE '%.webm')";
+        $query .= " AND (l.content LIKE '%.mp4' OR l.content LIKE '%.mov' OR l.content LIKE '%.avi' OR l.content LIKE '%.mkv' OR l.content LIKE '%.webm')";
     } elseif ($filter_type === "document") {
-        $query .= " AND (l.file_path LIKE '%.pdf' OR l.file_path LIKE '%.doc%' OR l.file_path LIKE '%.ppt%')";
+        $query .= " AND (l.content LIKE '%.pdf' OR l.content LIKE '%.doc%' OR l.content LIKE '%.ppt%')";
     }
 }
 
 $query .= " ORDER BY l.created_at DESC";
 $lessons = $conn->query($query);
-
-// Get list of available categories
-$categories = $conn->query("SELECT DISTINCT category FROM lessons WHERE category IS NOT NULL AND category != ''");
 
 // SINGLE LESSON VIEW (WHEN ?view=ID)
 $viewLesson = null;
@@ -267,13 +257,12 @@ if (isset($_GET['view'])) {
         </div>
         <ul class="sidebar-menu">
             <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="lesson.php" class="active">Lessons</a></li>
-            <li><a href="assignments.php">Assignments</a></li>
-            <li><a href="submissions.php">My Submissions</a></li>
-            <li><a href="announcements.php">Announcements</a></li>
-            <li><a href="profile.php">Profile</a></li>
+            <li><a href="lesson.php" class="active">Lesson</a></li>
+            <li><a href="assignments.php">Assignment</a></li>
+            <li><a href="submissions.php">Submissions</a></li>
+            <li><a href="announcements_messages.php">Announcement</a></li>
+            <li><a href="profile.php">Profile Settings</a></li>
             <li><a href="../logout.php">Logout</a></li>
-        </ul>
     </aside>
 
     <!-- Main -->
@@ -362,16 +351,6 @@ if (isset($_GET['view'])) {
             <form method="GET" class="filter-box">
                 <input type="text" name="q" class="search-bar" placeholder="Search lessons..."
                        value="<?php echo htmlspecialchars($search); ?>">
-
-                <select name="course">
-                    <option value="">Filter by Course</option>
-                    <?php while ($c = $categories->fetch_assoc()): ?>
-                        <option value="<?php echo htmlspecialchars($c['category']); ?>"
-                            <?php if ($filter_course == $c['category']) echo 'selected'; ?>>
-                            <?php echo htmlspecialchars($c['category']); ?>
-                        </option>
-                    <?php endwhile; ?>
-                </select>
 
                 <select name="type">
                     <option value="">Filter by Type</option>
