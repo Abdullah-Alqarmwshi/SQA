@@ -222,24 +222,36 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             align-items: center;
             margin-bottom: 20px;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 15px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
         .tabs-container {
             display: flex;
-            gap: 20px;
+            gap: 30px;
+            flex: 1;
         }
         .main-tab {
-            padding: 12px 20px;
+            padding: 12px 24px;
             cursor: pointer;
             border-bottom: 3px solid transparent;
             font-weight: 600;
             color: var(--text-medium);
             transition: all 0.3s;
             position: relative;
-            margin-bottom: -12px;
+            margin-bottom: -15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+        .main-tab i {
+            font-size: 18px;
         }
         .main-tab:hover {
             color: var(--primary-color);
+            transform: translateY(-2px);
         }
         .main-tab.active {
             border-bottom-color: var(--primary-color);
@@ -247,8 +259,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .main-tab-content { display: none; }
         .main-tab-content.active { display: block; }
@@ -1201,10 +1215,9 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             </div>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="lessons.php">My Lessons</a></li>
+                <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php">Assignments</a></li>
-                <li><a href="manage_announcements.php">Manage Announcements</a></li>
-                <li><a href="announcements_messages.php" class="active">View Announcements & Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?></a></li>
+                <li><a href="announcements_messages.php" class="active">Announcements <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?></a></li>
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -1231,16 +1244,13 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
                 <div class="main-tabs">
                     <div class="tabs-container">
                         <div class="main-tab <?php echo $current_tab === 'announcements' ? 'active' : ''; ?>" onclick="switchMainTab('announcements', event)">
-                            📢 My Announcements
+                            <i class="bi bi-megaphone-fill"></i> My Announcements
                         </div>
                         <div class="main-tab <?php echo $current_tab === 'messages' ? 'active' : ''; ?>" onclick="switchMainTab('messages', event)">
-                            💬 Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
+                            <i class="bi bi-chat-left-text-fill"></i> Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
                         </div>
                     </div>
                     <div class="action-buttons">
-                        <a href="manage_announcements.php" class="btn-create no-icon">
-                            Manage Announcements
-                        </a>
                         <button onclick="window.location.reload()" class="btn-create no-icon" title="Refresh announcements">
                             <i class="bi bi-arrow-clockwise"></i> Refresh
                         </button>
@@ -1307,7 +1317,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
 
                 <div class="card">
                     <div class="card-header">
-                        <h3>📋 My Announcements</h3>
+                        <h3><i class="bi bi-megaphone-fill"></i> My Announcements</h3>
                         <div class="announcement-stats">
                             Showing <?php echo $announcements->num_rows; ?> of <?php echo $total_announcements; ?> announcements
                             <?php if ($search_query): ?>
@@ -1316,6 +1326,11 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
                                 </span>
                             <?php endif; ?>
                         </div>
+                        <div class="action-buttons">
+                        <a href="manage_announcements.php" class="btn-create no-icon">
+                            <i class="bi bi-pencil-square"></i> Manage Announcements
+                        </a>
+                    </div>
                     </div>
                     <!-- Quick Filters -->
                     <div class="quick-filters">
@@ -1425,62 +1440,70 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
                 <!-- ============================================================================ -->
                 <div id="messages" class="main-tab-content <?php echo $current_tab === 'messages' ? 'active' : ''; ?>">
                     <!-- Message Tabs and Compose Button -->
-                    <div class="message-tabs-container">
-                        <div class="tabs">
-                            <button class="tab active" onclick="switchTab('inbox', event)">
+                    <div class="main-tabs">
+                        <div class="tabs-container">
+                            <button class="main-tab active" onclick="switchTab('inbox', event)">
                                 <i class="bi bi-inbox-fill"></i> Inbox
-                                <?php if ($unread_count > 0) echo '<span class="tab-badge">' . $unread_count . '</span>'; ?>
+                                <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
                             </button>
-                            <button class="tab" onclick="switchTab('sent', event)">
+                            <button class="main-tab" onclick="switchTab('sent', event)">
                                 <i class="bi bi-send-fill"></i> Sent
                             </button>
                         </div>
-                        <!-- Compose Message Button -->
-                        <button type="button" class="btn-compose-message" data-bs-toggle="modal" data-bs-target="#composeMessageModal">
-                            <i class="bi bi-envelope-plus"></i> Compose New Message
-                        </button>
+                        <div class="action-buttons">
+                            <button type="button" class="btn-create no-icon" data-bs-toggle="modal" data-bs-target="#composeMessageModal">
+                                <i class="bi bi-envelope-plus"></i> Compose New Message
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Message Filters -->
-                    <div class="message-filters">
-                        <div class="filter-group">
-                            <label>Filter:</label>
-                            <select class="filter-select" id="messageFilter" onchange="filterMessages()">
-                                <option value="all">All Messages</option>
-                                <option value="unread">Unread Only</option>
-                                <option value="read">Read Only</option>
-                            </select>
-                        </div>
+                    <!-- Message Filter Section -->
+                    <div class="filter-section">
+                        <div class="filter-row">
+                            <!-- Filter controls -->
+                            <form method="GET" class="filter-group">
+                                <input type="hidden" name="tab" value="messages">
+                                <input type="hidden" name="search" value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
+                                
+                                <div class="filter-group">
+                                    <label><i class="bi bi-funnel"></i> Filter</label>
+                                    <select name="filter" onchange="this.form.submit()" class="filter-select" id="messageFilter">
+                                        <option value="all" <?php echo ($_GET['filter'] ?? 'all') === 'all' ? 'selected' : ''; ?>>All Messages</option>
+                                        <option value="unread" <?php echo ($_GET['filter'] ?? '') === 'unread' ? 'selected' : ''; ?>>Unread Only</option>
+                                        <option value="read" <?php echo ($_GET['filter'] ?? '') === 'read' ? 'selected' : ''; ?>>Read Only</option>
+                                    </select>
+                                </div>
 
-                        <div class="filter-group">
-                            <label>Sort by:</label>
-                            <select class="filter-select" id="messageSort" onchange="sortMessages()">
-                                <option value="newest">Newest First</option>
-                                <option value="oldest">Oldest First</option>
-                                <option value="sender">By Sender</option>
-                            </select>
+                                <div class="filter-group">
+                                    <label><i class="bi bi-sort-down"></i> Sort by</label>
+                                    <select name="sort" onchange="this.form.submit()" class="filter-select" id="messageSort">
+                                        <option value="newest" <?php echo ($_GET['sort'] ?? 'newest') === 'newest' ? 'selected' : ''; ?>>Newest First</option>
+                                        <option value="oldest" <?php echo ($_GET['sort'] ?? '') === 'oldest' ? 'selected' : ''; ?>>Oldest First</option>
+                                        <option value="sender" <?php echo ($_GET['sort'] ?? '') === 'sender' ? 'selected' : ''; ?>>By Sender</option>
+                                    </select>
+                                </div>
+                            </form>
                         </div>
-
-                        <div class="search-input-wrapper">
-                            <i class="bi bi-search search-icon"></i>
-                            <input type="text" 
-                                   id="messageSearch" 
-                                   placeholder="Search messages by..." 
-                                   class="search-input" 
-                                   onkeyup="searchMessages()">
-                            <a href="#" class="search-clear" style="display:none" onclick="clearMessageSearch(this)" title="Clear search">
-                                <i class="bi bi-x-circle"></i>
-                            </a>
-                        </div>
-
-                        <div class="view-toggle">
-                            <button class="active" onclick="toggleView('list')" title="List View">
-                                <i class="bi bi-list-ul"></i>
-                            </button>
-                            <button onclick="toggleView('grid')" title="Grid View">
-                                <i class="bi bi-grid-3x3-gap-fill"></i>
-                            </button>
-                        </div>
+                        <!-- Search Bar -->
+                        <form method="GET" class="search-form" id="messageSearchForm">
+                            <input type="hidden" name="tab" value="messages">
+                            <input type="hidden" name="filter" value="<?php echo htmlspecialchars($_GET['filter'] ?? ''); ?>">
+                            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($_GET['sort'] ?? ''); ?>">
+                            <div class="search-input-wrapper">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" 
+                                       name="search" 
+                                       placeholder="Search messages by..." 
+                                       value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>" 
+                                       class="search-input" 
+                                       id="messageSearch">
+                                <?php if ($_GET['search'] ?? ''): ?>
+                                    <a href="?tab=messages" class="search-clear" title="Clear search">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        </form>
                     </div>
 
                     <div id="inbox" class="tab-content active">
@@ -2216,4 +2239,5 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
     </script>
 </body>
 </html>
+
 

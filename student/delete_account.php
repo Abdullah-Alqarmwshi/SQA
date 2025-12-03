@@ -65,11 +65,11 @@ $panel_name = ucfirst($role) . ' Panel';
                     <li><a href="lessons.php">My Lessons</a></li>
                     <li><a href="assignments.php">Assignments</a></li>
                 <?php else: ?>
-                    <li><a href="lessons.php">Browse Lessons</a></li>
-                    <li><a href="assignments.php">Assignments</a></li>
-                    <li><a href="submissions.php">My Submissions</a></li>
+                    <li><a href="lesson.php">Lesson</a></li>
+                    <li><a href="assignments.php">Assignment</a></li>
+                    <li><a href="submissions.php">Submissions</a></li>
                 <?php endif; ?>
-                <li><a href="announcements_messages.php">Announcements & Messages</a></li>  
+                <li><a href="announcements_messages.php">Announcement</a></li>  
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>

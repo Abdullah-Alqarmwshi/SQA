@@ -1322,11 +1322,12 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             </div>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="lessons.php">Browse Lessons</a></li>
-                <li><a href="assignments.php">Assignments</a></li>
+                <li><a href="lesson.php">Lesson</a></li>
+                <li><a href="assignments.php">Assignment</a></li>
+                <li><a href="submissions.php">Submissions</a></li>
                 <li>
                     <a href="announcements_messages.php" class="active">
-                        Announcements & Messages
+                        Announcement
                         <?php if ($unread_announcements_count > 0 || $unread_count > 0): ?>
                             <span class="unread-badge"><?php echo ($unread_announcements_count + $unread_count); ?></span>
                         <?php endif; ?>
@@ -1342,7 +1343,6 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                         </div>
                     <?php endif; ?>
                 </li>
-                <li><a href="submissions.php">My Submissions</a></li>
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -1369,10 +1369,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                 <div class="main-tabs">
                     <div class="tabs-container">
                         <div class="main-tab <?php echo $current_tab === 'announcements' ? 'active' : ''; ?>" onclick="switchMainTab('announcements', event)">
-                            📢 Announcements
+                            <i class="bi bi-megaphone-fill"></i> Announcements
                         </div>
                         <div class="main-tab <?php echo $current_tab === 'messages' ? 'active' : ''; ?>" onclick="switchMainTab('messages', event)">
-                            💬 Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
+                            <i class="bi bi-chat-left-text-fill"></i> Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
                         </div>
                     </div>
                     <div class="action-buttons">
@@ -1426,11 +1426,12 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                         <i class="bi bi-x-circle-fill"></i>
                                     </a>
                                 <?php endif; ?>
-                            </div>                        </form>
+                            </div>                        
+                        </form>
                     </div>
 
                     <div class="card-header">
-                        <h3>📢 Active Announcements</h3>
+                        <h3><i class="bi bi-megaphone-fill"></i> My Announcements</h3>
                         <div class="announcement-stats">
                             Showing <?php echo $announcements->num_rows; ?> of <?php echo $total_announcements; ?> announcements
                             <?php if ($search_query): ?>
@@ -1440,7 +1441,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                             <?php endif; ?>
                         </div>
                     </div>
-
+                    
                     <!-- Quick Filters -->
                         <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
                             <div class="quick-filters-container" style="display: flex; gap: 10px;">

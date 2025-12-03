@@ -367,10 +367,9 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
             </div>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="lessons.php">My Lessons</a></li>
+                <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php">Assignments</a></li>
-                <li><a href="manage_announcements.php" class="active">Manage Announcements</a></li>
-                <li><a href="announcements_messages.php">View Announcements & Messages</a></li>
+                <li><a href="announcements_messages.php" class="active">Announcements</a></li>
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -438,7 +437,9 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
 
             <div class="card">
                 <div class="card-header">
-                    <h3>📋 My Announcements</h3>
+                    <div class="main-tab <?php echo $current_tab === 'announcements' ? 'active' : ''; ?>" onclick="switchMainTab('announcements', event)">
+                        <i class="bi bi-megaphone-fill"></i> My Announcements
+                    </div>
                     <div class="announcement-stats">
                         Showing <?php echo $announcements->num_rows; ?> of <?php echo $total_announcements; ?> announcements
                         <?php if ($search_query): ?>
@@ -447,9 +448,14 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
                             </span>
                         <?php endif; ?>
                     </div>
-                    <button class="btn-create" onclick="openAnnouncementModal()">
-                        <i class="bi bi-plus-circle"></i> Create New Announcement
-                    </button>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <a href="announcements_messages.php" class="btn btn-outline-secondary" title="Back to Announcements">
+                            <i class="bi bi-arrow-left"></i> Back to Announcements
+                        </a>
+                        <button class="btn-create" onclick="openAnnouncementModal()">
+                            <i class="bi bi-plus-circle"></i> Create New Announcement
+                        </button>
+                    </div>
                 </div>
 
                 <?php if ($announcements->num_rows > 0): ?>
