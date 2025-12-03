@@ -1,0 +1,1 @@
+Patch in progress: updating manage_announcements.php and announcements_messages.php to fix search icon, action buttons and remove underline on Manage link.
