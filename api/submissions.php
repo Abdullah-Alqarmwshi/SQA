@@ -82,15 +82,16 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit('No file uploaded');
     }
     
-    $upload_dir = '../uploads/submissions/';
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
+    // Ensure uploads directory exists
+    $physical_upload_dir = __DIR__ . '/../uploads/submissions/';
+    if (!file_exists($physical_upload_dir)) {
+        mkdir($physical_upload_dir, 0777, true);
     }
     
     $file_name = time() . '_' . $_FILES['file']['name'];
     $file_path = 'uploads/submissions/' . $file_name;
     
-    if (!move_uploaded_file($_FILES['file']['tmp_name'], $upload_dir . $file_name)) {
+    if (!move_uploaded_file($_FILES['file']['tmp_name'], $physical_upload_dir . $file_name)) {
         http_response_code(500);
         exit('Failed to upload file');
     }

@@ -67,7 +67,6 @@ $panel_name = ucfirst($role) . ' Panel';
                 <?php else: ?>
                     <li><a href="lesson.php">Lesson</a></li>
                     <li><a href="assignments.php">Assignment</a></li>
-                    <li><a href="submissions.php">Submissions</a></li>
                 <?php endif; ?>
                 <li><a href="announcements_messages.php">Announcement</a></li>  
                 <li><a href="profile.php">Profile Settings</a></li>

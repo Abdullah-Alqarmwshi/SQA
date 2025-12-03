@@ -259,7 +259,6 @@ if (isset($_GET['view'])) {
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="lesson.php" class="active">Lesson</a></li>
             <li><a href="assignments.php">Assignment</a></li>
-            <li><a href="submissions.php">Submissions</a></li>
             <li><a href="announcements_messages.php">Announcement</a></li>
             <li><a href="profile.php">Profile Settings</a></li>
             <li><a href="../logout.php">Logout</a></li>

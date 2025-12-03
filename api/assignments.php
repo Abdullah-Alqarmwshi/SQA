@@ -118,10 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $stats = $stats_stmt->get_result()->fetch_assoc();
             
             $assignment['statistics'] = $stats;
-            echo json_encode($assignment);
+            echo json_encode(['success' => true, 'data' => $assignment]);
         } else {
             http_response_code(404);
-            echo json_encode(['error' => 'Assignment not found']);
+            echo json_encode(['success' => false, 'error' => 'Assignment not found']);
         }
     } else {
         // For multiple assignments fetch

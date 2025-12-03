@@ -1324,7 +1324,6 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                 <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="lesson.php">Lesson</a></li>
                 <li><a href="assignments.php">Assignment</a></li>
-                <li><a href="submissions.php">Submissions</a></li>
                 <li>
                     <a href="announcements_messages.php" class="active">
                         Announcement

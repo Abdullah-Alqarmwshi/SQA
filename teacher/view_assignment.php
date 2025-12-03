@@ -89,7 +89,7 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                     <?php if (!empty($assignment['file_path'])): ?>
                         <div class="mt-3">
                             <strong>Attached File:</strong>
-                            <a href="<?php echo $assignment['file_path']; ?>" target="_blank" class="btn btn-link">
+                            <a href="../api/download_file.php?type=assignment&id=<?php echo $assignment['id']; ?>" class="btn btn-link">
                                 <i class="fas fa-download"></i> Download Assignment File
                             </a>
                         </div>
@@ -122,9 +122,13 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                                             <td><?php echo htmlspecialchars($submission['student_name']); ?></td>
                                             <td><?php echo date('M j, Y g:i A', strtotime($submission['submitted_at'])); ?></td>
                                             <td>
-                                                <a href="<?php echo $submission['file_path']; ?>" target="_blank" class="btn btn-sm btn-link">
-                                                    <i class="fas fa-download"></i> Download
-                                                </a>
+                                                <?php if (!empty($submission['file_path'])): ?>
+                                                    <a href="../api/download_file.php?type=submission&id=<?php echo $submission['id']; ?>" class="btn btn-sm btn-link">
+                                                        <i class="fas fa-download"></i> Download
+                                                    </a>
+                                                <?php else: ?>
+                                                    <span class="text-muted">No file</span>
+                                                <?php endif; ?>
                                             </td>
                                             <td>
                                                 <?php if (isset($submission['grade'])): ?>
