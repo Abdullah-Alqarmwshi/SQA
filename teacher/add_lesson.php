@@ -7,7 +7,6 @@ $user_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title       = trim($_POST['title']);
-    $category    = isset($_POST['category']) ? trim($_POST['category']) : '';
     $description = trim($_POST['description']);
     $file_name   = '';
 
@@ -41,15 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // INSERT into DB
-    $sql = "INSERT INTO lessons (teacher_id, title, category, description, file_path, created_at)
-            VALUES (?, ?, ?, ?, ?, NOW())";
+    $sql = "INSERT INTO lessons (teacher_id, title, description, content, created_at)
+            VALUES (?, ?, ?, ?, NOW())";
 
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         die("SQL prepare failed: " . $conn->error . "<br>Query: " . $sql);
     }
 
-    $stmt->bind_param("issss", $user_id, $title, $category, $description, $file_name);
+    $stmt->bind_param("isss", $user_id, $title, $description, $file_name);
     $stmt->execute();
     $stmt->close();
 
