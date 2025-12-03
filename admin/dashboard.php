@@ -31,7 +31,7 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                 <li><a href="dashboard.php" class="active">Dashboard</a></li>
                 <li><a href="register_teacher.php">Register Teacher</a></li>
                 <li><a href="manage_users.php">Manage Users</a></li>
-                <li><a href="announcements.php">Announcements</a></li>
+                <li><a href="announcements_messages.php">Manage Announcements</a></li>  
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>

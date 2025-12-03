@@ -92,15 +92,61 @@ $sql = "CREATE TABLE IF NOT EXISTS announcements (
     user_id INT NOT NULL,
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
+    category ENUM('Academic', 'Event', 'General Notice', 'Administrative', 'Reminder') DEFAULT 'General Notice',
     type ENUM('general', 'urgent', 'event') DEFAULT 'general',
+    event_date DATETIME,
+    expiry_date DATETIME,
+    target_audience ENUM('All Teachers', 'All Students', 'Specific') DEFAULT 'All Students',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_created_at (created_at),
+    INDEX idx_category (category)
 )";
 
 if ($conn->query($sql) === TRUE) {
     $tables_created[] = 'Announcements table';
 } else {
     $errors[] = "Error creating announcements table: " . $conn->error;
+}
+
+// Create announcement responses table
+$sql = "CREATE TABLE IF NOT EXISTS announcement_responses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    announcement_id INT NOT NULL,
+    user_id INT NOT NULL,
+    response_text TEXT,
+    response_type ENUM('confirmed', 'declined', 'comment') DEFAULT 'comment',
+    responded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_response (announcement_id, user_id)
+)";
+
+if ($conn->query($sql) === TRUE) {
+    $tables_created[] = 'Announcement Responses table';
+} else {
+    $errors[] = "Error creating announcement responses table: " . $conn->error;
+}
+
+// Create messages table
+$sql = "CREATE TABLE IF NOT EXISTS messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    recipient_id INT NOT NULL,
+    subject VARCHAR(200),
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+
+if ($conn->query($sql) === TRUE) {
+    $tables_created[] = 'Messages table';
+} else {
+    $errors[] = "Error creating messages table: " . $conn->error;
 }
 
 // Insert default admin account

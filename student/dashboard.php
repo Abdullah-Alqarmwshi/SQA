@@ -32,8 +32,8 @@ $recent_lessons = $conn->query("SELECT l.*, u.full_name as teacher_name FROM les
                 <li><a href="dashboard.php" class="active">Dashboard</a></li>
                 <li><a href="lessons.php">Browse Lessons</a></li>
                 <li><a href="assignments.php">Assignments</a></li>
+                <li><a href="announcements_messages.php">Announcements & Messages</a></li>
                 <li><a href="submissions.php">My Submissions</a></li>
-                <li><a href="announcements.php">Announcements</a></li>
                 <li><a href="profile.php">Profile Settings</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
