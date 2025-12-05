@@ -76,6 +76,10 @@ $conn->close();
                     <input type="password" id="password" name="password" class="form-control" required>
                 </div>
                 
+                <div class="text-right mb-3">
+                    <a href="forgot_password.php" style="color: #667eea; text-decoration: none; font-size: 14px;">Forgot Password?</a>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
             

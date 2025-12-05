@@ -58,18 +58,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="register_teacher.php" class="active">Register Teacher</a></li>
                 <li><a href="manage_users.php">Manage Users</a></li>
-                <li><a href="announcements_messages.php">Manage Announcements</a></li>  
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <li><a href="announcements_messages.php">Manage Announcements</a></li>
             </ul>
         </aside>
         
         <main class="main-content">
             <div class="topbar">
                 <h1>Register New Teacher</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <hr>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
             
@@ -118,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </main>
     </div>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>
 <?php $conn->close(); ?>

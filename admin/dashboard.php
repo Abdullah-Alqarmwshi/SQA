@@ -19,6 +19,56 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - ClassConnect</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .user-info {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .user-dropdown.active {
+            display: block;
+        }
+        
+        .user-dropdown a {
+            display: block;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        
+        .user-dropdown a:hover {
+            background: #f5f5f5;
+        }
+        
+        .user-dropdown a:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .user-dropdown a:last-child {
+            border-radius: 0 0 8px 8px;
+            color: #dc3545;
+        }
+        
+        .user-dropdown hr {
+            margin: 0;
+            border: none;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard">
@@ -31,18 +81,21 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                 <li><a href="dashboard.php" class="active">Dashboard</a></li>
                 <li><a href="register_teacher.php">Register Teacher</a></li>
                 <li><a href="manage_users.php">Manage Users</a></li>
-                <li><a href="announcements_messages.php">Manage Announcements</a></li>  
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <li><a href="announcements_messages.php">Manage Announcements</a></li>
             </ul>
         </aside>
         
         <main class="main-content">
             <div class="topbar">
                 <h1>Dashboard</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <hr>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
             
@@ -98,6 +151,18 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
             </div>
         </main>
     </div>
+    <script>
+        function toggleDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+        
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-info')) {
+                document.getElementById('userDropdown').classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
 <?php $conn->close(); ?>

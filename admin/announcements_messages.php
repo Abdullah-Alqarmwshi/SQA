@@ -1144,17 +1144,20 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                 <li><a href="register_teacher.php">Register Teacher</a></li>
                 <li><a href="manage_users.php">Manage Users</a></li>
                 <li><a href="announcements_messages.php" class="active">Manage Announcements <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?></a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
             </ul>
         </aside>
 
         <main class="main-content">
             <div class="topbar">
                 <h1>Manage Announcements</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <hr>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
             
@@ -1971,6 +1974,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             };
         <?php endif; ?>
     </script>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>
 
