@@ -21,7 +21,7 @@ if ($search !== '') {
     $query .= " AND (l.title LIKE '%$safe%' OR l.description LIKE '%$safe%' OR u.full_name LIKE '%$safe%')";
 }
 
-// Filter by Type (file extension)
+// Filter by Type (file extension) – uses l.content (stored file name)
 if ($filter_type !== '') {
     if ($filter_type === "video") {
         $query .= " AND (l.content LIKE '%.mp4' OR l.content LIKE '%.mov' OR l.content LIKE '%.avi' OR l.content LIKE '%.mkv' OR l.content LIKE '%.webm')";
@@ -149,6 +149,12 @@ if (isset($_GET['view'])) {
     border-radius: 12px;
     border: none;
     background: #000;
+}
+.lesson-media embed {
+    width: 100%;
+    height: 600px;
+    border-radius: 12px;
+    border: none;
 }
 .attachment-link {
     display: inline-flex;
@@ -288,9 +294,9 @@ if (isset($_GET['view'])) {
             <?php
                 $fileUrl = '';
                 $ext = '';
-                if (!empty($viewLesson['file_path'])) {
-                    $fileUrl = '../uploads/' . htmlspecialchars($viewLesson['file_path']);
-                    $ext = strtolower(pathinfo($viewLesson['file_path'], PATHINFO_EXTENSION));
+                if (!empty($viewLesson['content'])) {
+                    $fileUrl = '../uploads/' . htmlspecialchars($viewLesson['content']);
+                    $ext = strtolower(pathinfo($viewLesson['content'], PATHINFO_EXTENSION));
                 }
             ?>
             <section class="lesson-detail">
@@ -302,11 +308,6 @@ if (isset($_GET['view'])) {
                         <div class="lesson-detail-meta">
                             <?php echo htmlspecialchars($viewLesson['teacher_name']); ?>
                             · <?php echo date('M d, Y', strtotime($viewLesson['created_at'])); ?>
-                            <?php if (!empty($viewLesson['category'])): ?>
-                                <span class="badge-pill">
-                                    <?php echo htmlspecialchars($viewLesson['category']); ?>
-                                </span>
-                            <?php endif; ?>
                         </div>
                     </div>
                     <a href="lesson.php" class="btn-back">Back to all lessons</a>
@@ -332,7 +333,7 @@ if (isset($_GET['view'])) {
                                     Your browser does not support the video tag.
                                 </video>
                             <?php elseif ($ext === 'pdf'): ?>
-                                <iframe src="<?php echo $fileUrl; ?>"></iframe>
+                                <embed src="<?php echo $fileUrl; ?>" type="application/pdf" width="100%" height="600px">
                             <?php else: ?>
                                 <a href="<?php echo $fileUrl; ?>" target="_blank" class="attachment-link">
                                     Open attachment
@@ -351,13 +352,13 @@ if (isset($_GET['view'])) {
                 <input type="text" name="q" class="search-bar" placeholder="Search lessons..."
                        value="<?php echo htmlspecialchars($search); ?>">
 
-                <select name="type">
+                <select name="type" onchange="this.form.submit()">
                     <option value="">Filter by Type</option>
                     <option value="video" <?php if ($filter_type=="video") echo "selected"; ?>>Video</option>
                     <option value="document" <?php if ($filter_type=="document") echo "selected"; ?>>Document</option>
                 </select>
 
-                <button style="display:none;"></button>
+                <button type="submit" style="display:none;"></button>
             </form>
 
             <!-- Lesson Cards Grid -->
@@ -366,8 +367,8 @@ if (isset($_GET['view'])) {
                     <?php while ($lesson = $lessons->fetch_assoc()): ?>
                         <?php
                             $type_label = "Material";
-                            if ($lesson['file_path']) {
-                                $extCard = strtolower(pathinfo($lesson['file_path'], PATHINFO_EXTENSION));
+                            if (!empty($lesson['content'])) {
+                                $extCard = strtolower(pathinfo($lesson['content'], PATHINFO_EXTENSION));
                                 if (in_array($extCard, ['mp4','mov','avi','mkv','webm'])) {
                                     $type_label = "Video";
                                 } elseif (in_array($extCard, ['pdf','ppt','pptx','doc','docx'])) {

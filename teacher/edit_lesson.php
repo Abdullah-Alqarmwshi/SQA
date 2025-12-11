@@ -122,7 +122,7 @@ $lesson = $res->fetch_assoc();
             </div>
         </div>
 
-        <!-- FLOATING EDIT CARD (MODAL STYLE) -->
+        <!-- FLOATING EDIT CARD -->
         <div class="edit-modal-card">
 
             <span class="close-btn" onclick="window.location='mylesson.php'">&times;</span>
@@ -139,18 +139,7 @@ $lesson = $res->fetch_assoc();
                         value="<?= htmlspecialchars($lesson['title']); ?>" required>
                 </div>
 
-                <!-- Category -->
-                <div class="mb-3">
-                    <label>Category</label>
-                    <select name="category" class="form-control" required>
-                        <option disabled>Select category</option>
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat ?>" <?= ($lesson['category'] === $cat ? 'selected' : '') ?>>
-                                <?= $cat ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <!-- CATEGORY REMOVED -->
 
                 <!-- Description -->
                 <div class="mb-3">
@@ -162,14 +151,14 @@ $lesson = $res->fetch_assoc();
 
                 <!-- File -->
                 <div class="mb-3">
-                    <label>Replace File (optional)</label>
-                    <input type="file" name="file" class="form-control">
+                    <label>File</label>
+                    <input type="file" name="file" class="form-control" required>
 
-                    <?php if (!empty($lesson['file_path'])): ?>
+                    <?php if (!empty($lesson['content'])): ?>
                         <p class="mt-2">
                             Current file:
-                            <a href="../uploads/<?= htmlspecialchars($lesson['file_path']); ?>" target="_blank">
-                                <?= htmlspecialchars($lesson['file_path']); ?>
+                            <a href="../uploads/<?= htmlspecialchars($lesson['content']); ?>" target="_blank">
+                                <?= htmlspecialchars($lesson['content']); ?>
                             </a>
                         </p>
                     <?php endif; ?>

@@ -1,0 +1,221 @@
+﻿﻿─ section AssignmentCB22102 parents standard_toolkit
+└
+
+─ [ UserID, RoomID, BookingID, Date]
+Time == ℕ
+Role ::= student | librarian
+Status ::= active | cancelled
+ └
+
+State Schema
+┌ StudyRoomSystem
+  users: (UserID ⇸ Role)
+  loggedIn: ℙ UserID
+  rooms: ℙ RoomID
+  bookingRoom:  BookingID ⇸ RoomID
+  bookingDate: BookingID ⇸ Date
+  startTime: BookingID ⇸ Time
+  endTime: BookingID ⇸ Time
+  groupLeader: BookingID ⇸ UserID
+  groupMembers: BookingID ⇸ ℙ UserID
+  groupSize: BookingID ⇸ ℕ
+  bookingStatus: BookingID ⇸ Status
+|
+ ∀ b : dom groupSize ⦁ groupSize b = #(groupMembers b)
+
+ ∀ b : dom startTime ∩ dom endTime ⦁
+          1 ≤ (endTime b − startTime b) ≤ 4
+        
+ ∀ b : dom bookingStatus ⦁
+           bookingStatus b = active ⇒ groupLeader b ∈ groupMembers b
+└
+
+InitStudyRoomSystem
+┌ InitStudyRoomSystem
+StudyRoomSystem
+|
+  users = ∅
+  loggedIn = ∅
+  rooms = ∅
+  bookingRoom = ∅
+  bookingDate = ∅
+  startTime = ∅
+  endTime = ∅
+  groupLeader = ∅
+  groupMembers = ∅
+  groupSize = ∅
+  bookingStatus = ∅
+└
+
+Operation Schema
+
+┌ Registration
+  ΔStudyRoomSystem
+  uid?: UserID
+  role?: Role
+|
+  uid? ∉ dom users
+  users′ = users ⊕ { uid? ↦ role? }
+  loggedIn′= loggedIn
+  rooms′= rooms
+  bookingRoom′ = bookingRoom
+  bookingDate′= bookingDate
+  startTime′ = startTime
+  endTime′= endTime
+  groupLeader′ = groupLeader
+  groupMembers′ = groupMembers
+  groupSize′ = groupSize
+  bookingStatus′= bookingStatus
+└
+
+┌ Login
+  ΔStudyRoomSystem
+  uid?: UserID
+|
+  uid? ∈ dom users
+  loggedIn′ = loggedIn ∪ {uid?}
+  users′= users
+  rooms′= rooms
+  bookingRoom′ = bookingRoom
+  bookingDate′ = bookingDate
+  startTime′= startTime
+  endTime′= endTime
+  groupLeader′= groupLeader
+  groupMembers′= groupMembers
+  groupSize′= groupSize
+   bookingStatus′ = bookingStatus
+└
+┌ Logout
+  ΔStudyRoomSystem
+  uid? : UserID
+|
+  uid? ∈ loggedIn
+  loggedIn′ = loggedIn ∖ {uid?}
+  users′ = users
+  rooms′ = rooms
+  bookingRoom′ = bookingRoom
+  bookingDate′ = bookingDate
+  startTime′ = startTime
+  endTime′ = endTime
+  groupLeader′ = groupLeader
+  groupMembers′ = groupMembers
+  groupSize′ = groupSize
+  bookingStatus′ = bookingStatus
+└
+
+┌ CreateBooking
+  ΔStudyRoomSystem
+  bid?: BookingID
+  rid?: RoomID
+  date?: Date
+  start?: Time
+  end?: Time
+  leader?: UserID
+  members?: ℙ UserID
+|
+
+  bid? ∉ dom bookingRoom
+  leader? ∈ loggedIn
+  leader? ∈ members?
+  3≤ #(members?) ≤ 10
+  1≤(end? − start?) ≤ 4
+   rid? ∈ rooms
+   
+   ∀ b : dom bookingRoom ⦁
+            bookingStatus b = active ∧bookingRoom b = rid? ∧ bookingDate b = date? ⇒
+            ¬ (start? < endTime b ∧ end? > startTime b)
+  
+    ∀ m : members? ⦁
+     ∀ b : dom groupMembers ⦁ bookingStatus b = active ∧ m ∈ groupMembers b ⇒
+            ¬ (date? = bookingDate b ∧ start? < endTime b ∧ end? > startTime b)
+        	
+   bookingRoom′ = bookingRoom ∪ {bid? ↦ rid?}
+   bookingDate′ = bookingDate ∪ {bid? ↦ date?}
+   startTime′ = startTime ∪ {bid? ↦ start?}
+   endTime′ = endTime ∪ {bid? ↦ end?}
+   groupLeader′ = groupLeader ∪ {bid? ↦ leader?}
+   groupMembers′ = groupMembers ∪ {bid? ↦ members?}
+   groupSize′ = groupSize ∪ {bid? ↦ #(members?)}
+   bookingStatus′ = bookingStatus ∪ {bid? ↦ active}
+  
+   users′ = users
+   loggedIn′ = loggedIn
+   rooms′ = rooms 
+└
+
+┌ ModifyBooking
+  ΔStudyRoomSystem
+  bid?: BookingID
+  leader?: UserID
+  newRoom?: RoomID
+  newDate?: Date
+  newStart?: Time
+  newEnd?: Time
+  newMembers?: ℙ UserID
+|
+ bid? ∈ dom groupLeader
+ leader? = groupLeader bid?
+ leader? ∈ loggedIn
+ 
+ 3 ≤ #(newMembers?) ≤ 10
+ 1 ≤ (newEnd? − newStart?) ≤ 4
+ 
+ bookingRoom′ = bookingRoom ⊕ {bid? ↦ newRoom?}
+ bookingDate′ = bookingDate ⊕ {bid? ↦ newDate?}
+startTime′ = startTime ⊕ {bid? ↦ newStart?}
+endTime′ = endTime ⊕ {bid? ↦ newEnd?}
+groupMembers′ = groupMembers ⊕ {bid? ↦ newMembers?}
+groupSize′ = groupSize ⊕ {bid? ↦ #(newMembers?)}
+
+users′ = users
+loggedIn′ = loggedIn
+rooms′ = rooms
+bookingStatus′ = bookingStatus
+groupLeader′ = groupLeader
+└
+
+┌ CancelBooking
+  ΔStudyRoomSystem
+  bid?: BookingID
+  uid?: UserID
+|
+ bid? ∈ dom bookingStatus
+ bookingStatus bid? = active
+ uid? = groupLeader bid?
+ uid? ∈ loggedIn
+
+bookingStatus′ = bookingStatus ⊕ {bid? ↦ cancelled}
+
+users′ = users
+loggedIn′ = loggedIn
+rooms′ = rooms
+bookingRoom′ = bookingRoom
+bookingDate′ = bookingDate
+startTime′ = startTime
+endTime′ = endTime
+groupLeader′ = groupLeader
+groupMembers′ = groupMembers
+groupSize′ = groupSize
+└
+
+┌ ViewBooking
+  ΞStudyRoomSystem
+  uid?: UserID
+  b!: ℙ BookingID
+|
+  uid? ∈ loggedIn
+
+ b! = { b : dom bookingRoom | groupLeader b = uid? ∨ uid? ∈ groupMembers b }
+└
+
+┌	ViewAllBookings
+  ΞStudyRoomSystem
+  uid?: UserID
+  all!: ℙ BookingID
+|
+  uid? ∈ loggedIn
+  users uid? = librarian
+  all! = dom bookingRoom
+└
+
+
