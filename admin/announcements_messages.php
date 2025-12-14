@@ -41,11 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
             } else {
                 $announcement_id = intval($_POST['announcement_id']);
-                $sql = "UPDATE announcements SET title='$title', content='$content', category='$category',
-                        type='$type', event_date=" . ($event_date ? "'$event_date'" : "NULL") . ",
-                        expiry_date=" . ($expiry_date ? "'$expiry_date'" : "NULL") . ",
-                        target_audience='$target_audience', updated_at=NOW()
-                        WHERE id=$announcement_id AND target_audience IN ('All Students', 'All Teachers')";
+                $sql = "UPDATE announcements a
+                    JOIN users u ON a.user_id = u.id
+                    SET a.title='$title', a.content='$content', a.category='$category',
+                    a.type='$type', a.event_date=" . ($event_date ? "'$event_date'" : "NULL") . ",
+                    a.expiry_date=" . ($expiry_date ? "'$expiry_date'" : "NULL") . ",
+                    a.target_audience='$target_audience', a.updated_at=NOW()
+                    WHERE a.id=$announcement_id AND u.role='admin'";
 
                 if ($conn->query($sql) === TRUE) {
                     $message = 'Announcement updated successfully!';
@@ -56,7 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     } elseif ($action === 'delete') {
         $announcement_id = intval($_POST['announcement_id']);
-        $sql = "DELETE FROM announcements WHERE id=$announcement_id AND target_audience IN ('All Students', 'All Teachers')";
+        $sql = "DELETE a FROM announcements a
+            JOIN users u ON a.user_id = u.id
+            WHERE a.id=$announcement_id AND u.role='admin'";
 
         if ($conn->query($sql) === TRUE) {
             $message = 'Announcement deleted successfully!';
@@ -273,7 +277,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         #announcementModal .modal-header { background: rgba(255,255,255,0.95); padding: 25px 30px; border-radius: 15px 15px 0 0; border-bottom: 3px solid #667eea; }
         #announcementModal .modal-header h2 { margin: 0; color: #667eea; font-size: 24px; display: flex; align-items: center; gap: 10px; }
-        #announcementModal .modal-header h2::before { content: '📢'; font-size: 28px; }
+        #announcementModal .modal-header h2::before { content: ''; font-size: 28px; }
         #announcementModal .modal-body { background: white; padding: 30px; max-height: 70vh; overflow-y: auto; }
         #announcementModal .modal-footer {
             background: white;
@@ -286,15 +290,17 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
         #announcementModal .modal-footer .btn {
             flex: 1;
-            padding: 14px 24px;
-            font-size: 16px;
+            padding: 10px 16px;
+            font-size: 12px;
             font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
         #announcementModal .close { color: #999; float: right; font-size: 32px; font-weight: bold; cursor: pointer; transition: color 0.3s; line-height: 1; }
         #announcementModal .close:hover { color: #667eea; }
@@ -316,52 +322,60 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
         /* Button Styles */
         .btn-group { display: flex; gap: 10px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+        .btn-primary { background: #1e40af; color: white; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25); }
         .btn-primary:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
+            text-decoration: none;
         }
-        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary { background: white; color: #1f2937; border: 1px solid #d1d5db; }
         .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            background: #f9fafb;
+            border-color: #1e40af;
+            color: #1e40af;
+            transform: translateY(-1px);
         }
-        .btn-success { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: #1e40af; color: white; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25); }
         .btn-success:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
-        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger { background: #dc2626; color: white; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25); }
         .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            background: #991b1b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
         }
         .btn-create {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
-            padding: 10px 20px;
-            font-size: 14px;
+            padding: 10px 16px;
+            font-size: 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
             white-space: nowrap;
         }
         .btn-create:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
-        .btn-create::before { content: '➕'; }
+        .btn-create::before { content: ''; }
 
         /* Card Styles */
         .card {
@@ -532,37 +546,38 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
         .btn-edit,
         .btn-delete {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .btn-edit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .btn-edit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #93c5fd;
+            color: #1e3a8a;
         }
 
         .btn-delete {
-            background: #dc3545;
-            color: white;
+            background: #fee2e2;
+            color: #dc2626;
         }
 
         .btn-delete:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            background: #fecaca;
+            color: #991b1b;
         }
 
         .announcement-actions { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; }
@@ -665,22 +680,27 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             border-color: var(--primary-color);
         }
         .btn-refresh {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 16px;
+            background: #1e40af;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             color: white;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-refresh:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         .announcement-stats {
@@ -899,16 +919,18 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
         .btn-edit-message,
         .btn-delete-message {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
         .message-actions {
             display: flex;
@@ -916,39 +938,43 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             align-items: center;
         }
         .btn-reply-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-reply-message:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
         .btn-edit-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #dbeafe;
+            color: #1e40af;
         }
         .btn-edit-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #93c5fd;
+            color: #1e3a8a;
         }
         .btn-delete-message {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
+            background: #fee2e2;
+            color: #dc2626;
         }
         .btn-delete-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            background: #fecaca;
+            color: #991b1b;
         }
 
         /* Message Modal Styles */
@@ -980,24 +1006,28 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
         .message-modal-footer .btn {
             flex: 1;
-            padding: 14px 24px;
-            font-size: 16px;
+            padding: 10px 16px;
+            font-size: 12px;
             font-weight: 600;
-            border-radius: 10px;
-            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
         .message-modal-footer .btn-secondary {
-            background: #6c757d;
-            border: none;
+            background: white;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
         }
         .message-modal-footer .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            background: #f9fafb;
+            border-color: #1e40af;
+            color: #1e40af;
+            transform: translateY(-1px);
         }
 
         /* View Message Styles */
@@ -1023,58 +1053,66 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             line-height: 1.6;
         }
         .btn-view-message {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-view-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         .btn-compose-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
             margin-left: auto;
             white-space: nowrap;
             min-width: 200px;
             justify-content: center;
         }
         .btn-compose-message:hover {
-            transform: translateY(-3px);
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         .btn-send-message {
-            background: var(--primary-gradient) !important;
+            background: #1e40af !important;
             border: none !important;
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3) !important;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25) !important;
         }
         .btn-send-message:hover {
-            background: linear-gradient(135deg, #357ABD 0%, #2A5F99 100%) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(74, 144, 226, 0.4) !important;
+            background: #153e75 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35) !important;
         }
 
         #composeMessageModal .form-label {
@@ -1170,10 +1208,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                 <div class="main-tabs">
                     <div class="tabs-container">
                         <div class="main-tab <?php echo $current_tab === 'announcements' ? 'active' : ''; ?>" onclick="switchMainTab('announcements', event)">
-                            📢 Manage Announcements
+                            <i class="bi bi-megaphone-fill"></i> Manage Announcements
                         </div>
                         <div class="main-tab <?php echo $current_tab === 'messages' ? 'active' : ''; ?>" onclick="switchMainTab('messages', event)">
-                            💬 Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
+                            <i class="bi bi-chat-left-text-fill"></i> Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
                         </div>
                     </div>
                     <div class="action-buttons">
@@ -1197,11 +1235,11 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                             <label><i class="bi bi-funnel"></i> Category:</label>
                             <select name="category" onchange="this.form.submit()" class="filter-select">
                                 <option value="">All Categories</option>
-                                <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>📚 Academic</option>
-                                <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>🎉 Event</option>
-                                <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>📢 General Notice</option>
-                                <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>📋 Administrative</option>
-                                <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>⏰ Reminder</option>
+                                <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
+                                <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>Event</option>
+                                <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>General Notice</option>
+                                <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>Administrative</option>
+                                <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>Reminder</option>
                             </select>
 
                             <label><i class="bi bi-sort-down"></i> Sort by:</label>
@@ -1232,7 +1270,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
                 <div class="card">
                     <div class="card-header">
-                        <h3>📋 All Announcements</h3>
+                        <h3><i class="bi bi-megaphone-fill"></i> All Announcements</h3>
                         <div class="announcement-stats">
                             Showing <?php echo $announcements->num_rows; ?> of <?php echo $total_announcements; ?> announcements
                             <?php if ($search_query): ?>
@@ -1285,30 +1323,36 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                         <div class="author-avatar">
                                             <?php echo strtoupper(substr($ann['full_name'], 0, 1)); ?>
                                         </div>
-                                        <div class="author-details">
-                                            <div class="author-name">By <?php echo htmlspecialchars($ann['full_name']); ?></div>
-                                            <div class="author-role">Target: <?php echo htmlspecialchars($ann['target_audience']); ?></div>
-                                        </div>
+                                            <div class="author-details">
+                                                <div class="author-name">
+                                                    <i class="bi bi-megaphone-fill" title="Announcement"></i>
+                                                    By <?php echo htmlspecialchars($ann['full_name']); ?>
+                                                </div>
+                                                <div class="author-role">Target: <?php echo htmlspecialchars($ann['target_audience']); ?></div>
+                                            </div>
                                     </div>
-
-                                    <div class="action-buttons">
-                                        <button class="btn-edit" onclick='openEditModal(<?php echo json_encode($ann); ?>)'>
-                                            <i class="bi bi-pencil"></i> Edit
-                                        </button>
-                                        <form method="POST" style="display:inline;">
-                                            <input type="hidden" name="action" value="delete">
-                                            <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
-                                            <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this announcement?');">
-                                                <i class="bi bi-trash"></i> Delete
+                                    
+                                        <div class="action-buttons">
+                                            <button class="btn btn-secondary" title="Message author" onclick="openMessageToAuthor(<?php echo intval($ann['user_id']); ?>, '<?php echo htmlspecialchars($ann['full_name'], ENT_QUOTES); ?>')">
+                                                <i class="bi bi-chat-left-text"></i>
                                             </button>
-                                        </form>
-                                    </div>
+                                            <button class="btn-edit" onclick='openEditModal(<?php echo json_encode($ann); ?>)'>
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </button>
+                                            <form method="POST" style="display:inline;">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
+                                                <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this announcement?');">
+                                                    <i class="bi bi-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
                                 </div>
                             </div>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <p style="text-align: center; padding: 40px; color: #999;">
-                            📢 No announcements yet. Click "Create Announcement" to get started!
+                            No announcements yet. Click "Create Announcement" to get started!
                         </p>
                     <?php endif; ?>
                 </div>
@@ -1508,11 +1552,11 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                         <div class="form-group">
                             <label>Category</label>
                             <select name="category" id="category">
-                                <option value="Academic">📚 Academic</option>
-                                <option value="Event">🎉 Event</option>
-                                <option value="General Notice" selected>📢 General Notice</option>
-                                <option value="Administrative">📋 Administrative</option>
-                                <option value="Reminder">⏰ Reminder</option>
+                                <option value="Academic">Academic</option>
+                                <option value="Event">Event</option>
+                                <option value="General Notice" selected>General Notice</option>
+                                <option value="Administrative">Administrative</option>
+                                <option value="Reminder">Reminder</option>
                             </select>
                         </div>
 
@@ -1520,8 +1564,8 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                             <label>Type</label>
                             <select name="type" id="type">
                                 <option value="general" selected>General</option>
-                                <option value="urgent">🚨 Urgent</option>
-                                <option value="event">🎊 Event</option>
+                                <option value="urgent">Urgent</option>
+                                <option value="event">Event</option>
                             </select>
                         </div>
                     </div>
@@ -1541,9 +1585,9 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                     <div class="form-group full-width">
                         <label>Target Audience</label>
                         <select name="target_audience" id="target_audience">
-                            <option value="All Students" selected>👨‍🎓 All Students</option>
-                            <option value="All Teachers">👨‍🏫 All Teachers</option>
-                            <option value="Specific">🎯 Specific</option>
+                            <option value="All Students" selected>All Students</option>
+                            <option value="All Teachers">All Teachers</option>
+                            <option value="Specific">Specific</option>
                         </select>
                     </div>
                 </div>
@@ -1683,7 +1727,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         // Modal Functions
         function openAnnouncementModal() {
             document.getElementById('announcementModal').style.display = 'block';
-            document.getElementById('modalTitle').innerHTML = '📢 Create New Announcement';
+            document.getElementById('modalTitle').innerHTML = 'Create New Announcement';
             document.getElementById('formAction').value = 'create';
             document.getElementById('submitBtn').innerHTML = '<i class="bi bi-megaphone"></i> Create Announcement';
             document.getElementById('announcementForm').reset();
@@ -1692,7 +1736,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
         function openEditModal(announcement) {
             document.getElementById('announcementModal').style.display = 'block';
-            document.getElementById('modalTitle').innerHTML = '✏️ Edit Announcement';
+            document.getElementById('modalTitle').innerHTML = 'Edit Announcement';
             document.getElementById('formAction').value = 'update';
             document.getElementById('submitBtn').innerHTML = '<i class="bi bi-check-circle"></i> Update Announcement';
 
@@ -1970,6 +2014,33 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                 openEditModal(<?php echo json_encode($edit_announcement); ?>);
             };
         <?php endif; ?>
+        
+        // Helper to open compose modal and pre-select recipient (used from announcement card)
+        function openMessageToAuthor(recipientId, recipientName) {
+            // If recipient exists in select options, set it; otherwise leave it for user to choose
+            const recipientSelect = document.getElementById('recipient_id');
+            if (recipientSelect) {
+                try {
+                    recipientSelect.value = recipientId;
+                } catch (e) {
+                    // ignore if value not present
+                }
+            }
+
+            // Prefill subject
+            const subjectField = document.getElementById('subject');
+            if (subjectField) {
+                subjectField.value = 'Regarding your announcement';
+            }
+
+            // Update compose modal title and show
+            const composeLabel = document.getElementById('composeMessageModalLabel');
+            if (composeLabel) {
+                composeLabel.innerHTML = '<i class="bi bi-chat-left-text"></i> Message ' + recipientName;
+            }
+            const composeModal = new bootstrap.Modal(document.getElementById('composeMessageModal'));
+            composeModal.show();
+        }
     </script>
 </body>
 </html>
