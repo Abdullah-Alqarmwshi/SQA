@@ -144,7 +144,6 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
                 <span><?php echo $_SESSION['full_name']; ?></span>
                 <div class="user-dropdown" id="userDropdown">
                     <a href="profile.php">👤 Profile Settings</a>
-                    <hr>
                     <a href="../logout.php">🚪 Logout</a>
                 </div>
             </div>

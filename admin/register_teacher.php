@@ -70,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <span><?php echo $_SESSION['full_name']; ?></span>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="profile.php">👤 Profile Settings</a>
-                        <hr>
                         <a href="../logout.php">🚪 Logout</a>
                     </div>
                 </div>

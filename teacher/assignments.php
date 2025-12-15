@@ -592,7 +592,6 @@ while($row = $result->fetch_assoc()) {
                     <span style="font-size: 14px; font-weight: 500; color: #1f2937;"><?php echo htmlspecialchars($teacher_name); ?></span>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="profile.php">👤 Profile Settings</a>
-                        <hr>
                         <a href="../logout.php">🚪 Logout</a>
                     </div>
                 </div>

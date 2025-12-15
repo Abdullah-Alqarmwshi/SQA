@@ -14,62 +14,14 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - ClassConnect</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        .user-info {
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 10px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            min-width: 200px;
-            display: none;
-            z-index: 1000;
-        }
-        
-        .user-dropdown.active {
-            display: block;
-        }
-        
-        .user-dropdown a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-        
-        .user-dropdown a:hover {
-            background: #f5f5f5;
-        }
-        
-        .user-dropdown a:first-child {
-            border-radius: 8px 8px 0 0;
-        }
-        
-        .user-dropdown a:last-child {
-            border-radius: 0 0 8px 8px;
-            color: #dc3545;
-        }
-        
-        .user-dropdown hr {
-            margin: 0;
-            border: none;
-            border-top: 1px solid #e0e0e0;
-        }
-    </style>
 </head>
+
 <body>
     <div class="dashboard">
         <aside class="sidebar">
@@ -84,7 +36,7 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                 <li><a href="announcements_messages.php">Manage Announcements</a></li>
             </ul>
         </aside>
-        
+
         <main class="main-content">
             <div class="topbar">
                 <h1>Dashboard</h1>
@@ -93,12 +45,11 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                     <span><?php echo $_SESSION['full_name']; ?></span>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="profile.php">👤 Profile Settings</a>
-                        <hr>
                         <a href="../logout.php">🚪 Logout</a>
                     </div>
                 </div>
             </div>
-            
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <h4>Total Teachers</h4>
@@ -117,7 +68,7 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                     <div class="stat-value"><?php echo $assignments_count; ?></div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <div class="card-header">
                     <h3>Recent Users</h3>
@@ -134,17 +85,17 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                     </thead>
                     <tbody>
                         <?php while ($user = $recent_users->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($user['full_name']); ?></td>
-                            <td><?php echo htmlspecialchars($user['username']); ?></td>
-                            <td><?php echo htmlspecialchars($user['email']); ?></td>
-                            <td>
-                                <span class="badge badge-<?php echo $user['role'] == 'admin' ? 'danger' : ($user['role'] == 'teacher' ? 'success' : 'warning'); ?>">
-                                    <?php echo ucfirst($user['role']); ?>
-                                </span>
-                            </td>
-                            <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
-                        </tr>
+                            <tr>
+                                <td><?php echo htmlspecialchars($user['full_name']); ?></td>
+                                <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                <td>
+                                    <span class="badge badge-<?php echo $user['role'] == 'admin' ? 'danger' : ($user['role'] == 'teacher' ? 'success' : 'warning'); ?>">
+                                        <?php echo ucfirst($user['role']); ?>
+                                    </span>
+                                </td>
+                                <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
+                            </tr>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
@@ -155,7 +106,7 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
         function toggleDropdown() {
             document.getElementById('userDropdown').classList.toggle('active');
         }
-        
+
         // Close dropdown when clicking outside
         window.addEventListener('click', function(e) {
             if (!e.target.closest('.user-info')) {
@@ -164,5 +115,6 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
         });
     </script>
 </body>
+
 </html>
 <?php $conn->close(); ?>

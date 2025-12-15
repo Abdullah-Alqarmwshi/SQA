@@ -18,56 +18,6 @@ $pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments W
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - ClassConnect</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <style>
-        .user-info {
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 10px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            min-width: 200px;
-            display: none;
-            z-index: 1000;
-        }
-        
-        .user-dropdown.active {
-            display: block;
-        }
-        
-        .user-dropdown a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-        
-        .user-dropdown a:hover {
-            background: #f5f5f5;
-        }
-        
-        .user-dropdown a:first-child {
-            border-radius: 8px 8px 0 0;
-        }
-        
-        .user-dropdown a:last-child {
-            border-radius: 0 0 8px 8px;
-            color: #dc3545;
-        }
-        
-        .user-dropdown hr {
-            margin: 0;
-            border: none;
-            border-top: 1px solid #e0e0e0;
-        }
-    </style>
 </head>
 <body>
     <div class="dashboard">
@@ -92,7 +42,6 @@ $pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments W
                     <span><?php echo $_SESSION['full_name']; ?></span>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="profile.php">👤 Profile Settings</a>
-                        <hr>
                         <a href="../logout.php">🚪 Logout</a>
                     </div>
                 </div>

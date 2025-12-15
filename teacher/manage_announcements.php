@@ -378,9 +378,13 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
         <main class="main-content">
             <div class="topbar">
                 <h1>Manage Announcements</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
             
