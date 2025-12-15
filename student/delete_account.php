@@ -59,33 +59,29 @@ $panel_name = ucfirst($role) . ' Panel';
                 <h2>ClassConnect</h2>
                 <p><?php echo $panel_name; ?></p>
             </div>
+        <script>
+            // Confirm deletion
+            function confirmDelete() {
+                return confirm('Are you sure you want to permanently delete your account? This action cannot be undone.');
+            }
+        </script>
+        <script src="../assets/js/main.js"></script>
             <ul class="sidebar-menu">
                 <li><a href="dashboard.php">Dashboard</a></li>
                 <?php if ($role == 'teacher'): ?>
-                    <li><a href="lessons.php">My Lessons</a></li>
+                    </div>
                     <li><a href="assignments.php">Assignments</a></li>
                 <?php else: ?>
                     <li><a href="lesson.php">Lesson</a></li>
                     <li><a href="assignments.php">Assignment</a></li>
                 <?php endif; ?>
-                <li><a href="announcements_messages.php">Announcement</a></li>  
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <li><a href="announcements_messages.php">Announcement</a></li>
+                <!-- profile and logout moved to topbar dropdown -->
             </ul>
         </aside>
         
         <main class="main-content">
-            <div class="topbar">
-                <h1>Delete Account</h1>
-                <div class="user-info" onclick="toggleDropdown()">
-                    <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
-                    <span><?php echo $_SESSION['full_name']; ?></span>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.php">👤 Profile Settings</a>
-                        <a href="../logout.php">🚪 Logout</a>
-                    </div>
-                </div>
-            </div>
+            <?php $page_title = 'Delete Account'; require_once __DIR__ . '/../includes/topbar.php'; ?>
             
             <div class="card" style="border-left: 4px solid #f44336;">
                 <div class="card-header">

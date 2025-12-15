@@ -59,12 +59,12 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php" class="active">Assignments</a></li>
                 <li><a href="announcements_messages.php">Announcements</a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <!-- profile and logout moved to topbar dropdown -->
             </ul>
         </aside>
 
         <main class="main-content">
+            <?php $page_title = 'Assignment Details'; require_once __DIR__ . '/../includes/topbar.php'; ?>
             <div class="mb-4">
                 <a href="assignments.php" class="btn btn-link px-0">
                     <i class="fas fa-arrow-left"></i> Back to Assignments
@@ -216,5 +216,6 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             }
         });
     </script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

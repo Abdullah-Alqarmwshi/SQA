@@ -266,27 +266,15 @@ if (isset($_GET['view'])) {
             <li><a href="lesson.php" class="active">Lesson</a></li>
             <li><a href="assignments.php">Assignment</a></li>
             <li><a href="announcements_messages.php">Announcement</a></li>
-            <li><a href="profile.php">Profile Settings</a></li>
-            <li><a href="../logout.php">Logout</a></li>
-    </aside>
+            <!-- profile and logout moved to topbar dropdown -->
+            </ul>
+        </aside>
 
     <!-- Main -->
     <main class="main-content">
 
         <!-- Topbar to match dashboard.php -->
-        <div class="topbar">
-            <h1>Lessons</h1>
-            <div class="user-info" onclick="toggleDropdown()">
-                <div class="user-avatar">
-                    <?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?>
-                </div>
-                <span><?php echo $_SESSION['full_name']; ?></span>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="profile.php">👤 Profile Settings</a>
-                    <a href="../logout.php">🚪 Logout</a>
-                </div>
-            </div>
-        </div>
+        <?php $page_title = 'Lessons'; require_once __DIR__ . '/../includes/topbar.php'; ?>
 
         <!-- Page heading under the topbar -->
         <div class="page-header">
@@ -418,6 +406,7 @@ if (isset($_GET['view'])) {
         <?php endif; ?>
     </main>
 </div>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>
 

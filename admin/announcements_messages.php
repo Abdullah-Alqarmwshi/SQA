@@ -1186,17 +1186,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         </aside>
 
         <main class="main-content">
-            <div class="topbar">
-                <h1>Manage Announcements</h1>
-                <div class="user-info" onclick="toggleDropdown()">
-                    <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
-                    <span><?php echo $_SESSION['full_name']; ?></span>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.php">👤 Profile Settings</a>
-                        <a href="../logout.php">🚪 Logout</a>
-                    </div>
-                </div>
-            </div>
+            <?php $page_title = 'Manage Announcements'; require_once __DIR__ . '/../includes/topbar.php'; ?>
             
             <?php if ($message): ?>
                 <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
