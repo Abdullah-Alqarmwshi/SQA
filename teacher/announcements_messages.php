@@ -199,29 +199,30 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
     <link rel="stylesheet" href="../assets/css/shared-components.css">
     <link rel="stylesheet" href="../assets/css/announcements.css">
     <style>
+        /* Align announcement & messages page colors with the global dashboard/assignments theme */
         :root {
-            /* Original ClassConnect Color Scheme */
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --success-color: #4CAF50;
-            --danger-color: #f44336;
-            --warning-color: #ff9800;
-            --info-color: #2196F3;
-            --light-bg: #f5f7fa;
-            --dark-text: #333;
-            --light-text: #666;
-            --border-color: #ddd;
+            /* Core palette (match ../assets/css/style.css) */
+            --primary-color: #1e40af;
+            --secondary-color: #0f172a;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #06b6d4;
+            --light-bg: #f8fafc;
+            --dark-text: #1e293b;
+            --light-text: #64748b;
+            --border-color: #e2e8f0;
 
-            /* Additional variables for consistency */
+            /* Additional variables used by this page, based on the same palette */
             --bg-white: #ffffff;
-            --bg-light: #f5f7fa;
-            --text-dark: #333;
-            --text-medium: #666;
-            --text-light: #999;
-            --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            --bg-light: #f8fafc;
+            --text-dark: #1e293b;
+            --text-medium: #4b5563;
+            --text-light: #9ca3af;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
 
-            /* Gradients using original colors */
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* Gradient helpers that visually match the assignments module */
+            --primary-gradient: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
         }
 
         .main-tabs {
@@ -289,10 +290,31 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         /* Announcement Modal Styles (Custom) */
         #announcementModal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        #announcementModal .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 2% auto; padding: 0; border-radius: 15px; width: 90%; max-width: 700px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideDown 0.3s; }
+        #announcementModal .modal-content {
+            background: var(--primary-gradient);
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        #announcementModal .modal-header { background: rgba(255,255,255,0.95); padding: 25px 30px; border-radius: 15px 15px 0 0; border-bottom: 3px solid #667eea; }
-        #announcementModal .modal-header h2 { margin: 0; color: #667eea; font-size: 24px; display: flex; align-items: center; gap: 10px; }
+        #announcementModal .modal-header {
+            background: rgba(255,255,255,0.95);
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        #announcementModal .modal-header h2 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         #announcementModal .modal-header h2::before { content: ''; font-size: 28px; }
         #announcementModal .modal-body { background: white; padding: 30px; max-height: 70vh; overflow-y: auto; }
         #announcementModal .modal-footer {
@@ -388,6 +410,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             transform: translateY(-1px);
             box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             color: white;
+            text-decoration: none;
         }
           .btn-create::before { content: ''; }
           /* For teacher view we don't want the decorative plus icon on the Manage link.
@@ -424,24 +447,25 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             color: #2c3e50;
         }
 
-        /* Announcement Card Styles */
+        /* Announcement Card Styles – match student panel look */
         .announcement-card {
-            background: white;
+            background: var(--bg-white);
             border-radius: 12px;
             padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin: 15px 0;
+            box-shadow: 0 2px 12px rgba(74, 144, 226, 0.1);
+            border-left: 5px solid var(--primary-color);
             transition: all 0.3s;
-            border-left: 5px solid #667eea;
+            cursor: pointer;
         }
 
         .announcement-card:hover {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(74, 144, 226, 0.15);
+            transform: translateY(-3px);
         }
 
         .announcement-card.urgent {
-            border-left-color: #dc3545;
+            border-left-color: var(--danger-color);
         }
 
         .announcement-card.event {
@@ -673,31 +697,38 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             flex-wrap: wrap;
         }
         .filter-btn {
-            padding: 10px 20px;
+            padding: 10px 16px;
             background: white;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-medium);
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #1f2937;
             text-decoration: none;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
+            gap: 6px;
+            transition: all 0.3s ease;
             position: relative;
+            white-space: nowrap;
         }
         .filter-btn:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            transform: translateY(-2px);
+            border-color: #1e40af;
+            color: #1e40af;
+            background: #f9fafb;
+            transform: translateY(-1px);
+            text-decoration: none;
         }
         .filter-btn.active {
-            background: var(--primary-gradient);
-            border-color: var(--primary-color);
+            background: #1e40af;
+            border-color: #1e40af;
             color: white;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .filter-badge {
-            background: var(--danger-color);
+            background: #dc3545;
             color: white;
             padding: 2px 8px;
             border-radius: 10px;
@@ -706,7 +737,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .filter-btn.active .filter-badge {
             background: white;
-            color: var(--primary-color);
+            color: #1e40af;
         }
 
         /* Filter Section */
@@ -751,7 +782,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         .btn-mark-all-read,
         .btn-create {
             padding: 8px 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             border: none;
             border-radius: 8px;
             color: white;
@@ -761,11 +792,12 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-mark-all-read:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             text-decoration: none;
         }
 
@@ -1097,8 +1129,6 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .btn-reply-message:hover {
             background: #153e75;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             color: white;
         }
         .btn-edit-message {
@@ -1120,8 +1150,6 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .btn-edit-message:hover {
             background: #153e75;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             color: white;
         }
         .btn-delete-message {
@@ -1143,15 +1171,13 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .btn-delete-message:hover {
             background: #991b1b;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
             color: white;
         }
 
         /* Message Modal Styles */
         .message-modal-content { border: none; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.2); }
         .message-modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
             border: none;
             padding: 25px 30px;
@@ -1238,8 +1264,6 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .btn-view-message:hover {
             background: #153e75;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             color: white;
         }
 
@@ -1264,20 +1288,18 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .btn-compose-message:hover {
             background: #153e75;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             color: white;
         }
 
         .btn-send-message {
             background: var(--primary-gradient) !important;
             border: none !important;
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.35) !important;
         }
         .btn-send-message:hover {
-            background: linear-gradient(135deg, #357ABD 0%, #2A5F99 100%) !important;
+            background: linear-gradient(135deg, #153e75 0%, #1e40af 100%) !important;
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(74, 144, 226, 0.4) !important;
+            box-shadow: 0 6px 18px rgba(30, 64, 175, 0.45) !important;
         }
 
         #composeMessageModal .form-label {

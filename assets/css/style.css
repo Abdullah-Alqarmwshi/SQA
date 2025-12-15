@@ -129,38 +129,40 @@ body {
 }
 
 .btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 4px;
     font-weight: 600;
-    transition: all 0.3s ease;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     text-decoration: none;
-    display: inline-block;
-    text-align: center;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    background: #1e40af;
     color: white;
-    width: 100%;
-    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(30, 64, 175, 0.4);
+    background: #153e75;
 }
 
 .btn-secondary {
-    background: var(--light-bg);
-    color: var(--dark-text);
-    border: 1px solid var(--border-color);
+    background: white;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
 }
 
 .btn-secondary:hover {
-    background: var(--lighter-bg);
+    background: #f9fafb;
+    border-color: #1e40af;
+    color: #1e40af;
 }
 
 .btn-success {
