@@ -31,17 +31,19 @@ $pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments W
                 <li><a href="lesson.php">Lesson</a></li>
                 <li><a href="assignments.php">Assignment</a></li>
                 <li><a href="announcements_messages.php">Announcement</a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
             </ul>
         </aside>
         
         <main class="main-content">
             <div class="topbar">
                 <h1>Dashboard</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
             
@@ -73,6 +75,18 @@ $pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments W
             -->
         </main>
     </div>
+    <script>
+        function toggleDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+        
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-info')) {
+                document.getElementById('userDropdown').classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
 <?php $conn->close(); ?>

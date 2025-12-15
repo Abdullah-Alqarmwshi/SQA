@@ -131,8 +131,6 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
             <li><a href="mylesson.php" class="active">My Lessons</a></li>
             <li><a href="assignments.php">Assignments</a></li>
             <li><a href="announcements_messages.php">Announcements</a></li>
-            <li><a href="profile.php">Profile Settings</a></li>
-            <li><a href="../logout.php">Logout</a></li>
         </ul>
     </aside>
 
@@ -142,9 +140,13 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
         <!-- TOPBAR (same as dashboard) -->
         <div class="topbar">
             <h1>My Lessons</h1>
-            <div class="user-info">
+            <div class="user-info" onclick="toggleDropdown()">
                 <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                 <span><?php echo $_SESSION['full_name']; ?></span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="profile.php">👤 Profile Settings</a>
+                    <a href="../logout.php">🚪 Logout</a>
+                </div>
             </div>
         </div>
 
@@ -250,6 +252,7 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>
 

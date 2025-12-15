@@ -14,12 +14,14 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - ClassConnect</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body>
     <div class="dashboard">
         <aside class="sidebar">
@@ -31,21 +33,23 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                 <li><a href="dashboard.php" class="active">Dashboard</a></li>
                 <li><a href="register_teacher.php">Register Teacher</a></li>
                 <li><a href="manage_users.php">Manage Users</a></li>
-                <li><a href="announcements_messages.php">Manage Announcements</a></li>  
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <li><a href="announcements_messages.php">Manage Announcements</a></li>
             </ul>
         </aside>
-        
+
         <main class="main-content">
             <div class="topbar">
                 <h1>Dashboard</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
-            
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <h4>Total Teachers</h4>
@@ -64,7 +68,7 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                     <div class="stat-value"><?php echo $assignments_count; ?></div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <div class="card-header">
                     <h3>Recent Users</h3>
@@ -81,23 +85,36 @@ $recent_users = $conn->query("SELECT * FROM users ORDER BY created_at DESC LIMIT
                     </thead>
                     <tbody>
                         <?php while ($user = $recent_users->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($user['full_name']); ?></td>
-                            <td><?php echo htmlspecialchars($user['username']); ?></td>
-                            <td><?php echo htmlspecialchars($user['email']); ?></td>
-                            <td>
-                                <span class="badge badge-<?php echo $user['role'] == 'admin' ? 'danger' : ($user['role'] == 'teacher' ? 'success' : 'warning'); ?>">
-                                    <?php echo ucfirst($user['role']); ?>
-                                </span>
-                            </td>
-                            <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
-                        </tr>
+                            <tr>
+                                <td><?php echo htmlspecialchars($user['full_name']); ?></td>
+                                <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                <td>
+                                    <span class="badge badge-<?php echo $user['role'] == 'admin' ? 'danger' : ($user['role'] == 'teacher' ? 'success' : 'warning'); ?>">
+                                        <?php echo ucfirst($user['role']); ?>
+                                    </span>
+                                </td>
+                                <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
+                            </tr>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
             </div>
         </main>
     </div>
+    <script>
+        function toggleDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-info')) {
+                document.getElementById('userDropdown').classList.remove('active');
+            }
+        });
+    </script>
 </body>
+
 </html>
 <?php $conn->close(); ?>

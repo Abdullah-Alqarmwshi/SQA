@@ -70,18 +70,20 @@ $panel_name = ucfirst($role) . ' Panel';
                     <li><a href="assignments.php">Assignments</a></li>
                     <li><a href="submissions.php">My Submissions</a></li>
                 <?php endif; ?>
-                <li><a href="announcements_messages.php">Announcements</a></li>  
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <li><a href="announcements_messages.php">Announcements</a></li>
             </ul>
         </aside>
         
         <main class="main-content">
             <div class="topbar">
                 <h1>Delete Account</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
             
@@ -123,6 +125,7 @@ $panel_name = ucfirst($role) . ' Panel';
             </div>
         </main>
     </div>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>
 <?php $conn->close(); ?>

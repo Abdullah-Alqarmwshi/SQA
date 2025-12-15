@@ -73,6 +73,7 @@ $panel_name = ucfirst($role) . ' Panel';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Settings - ClassConnect</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/profile.css">
 </head>
 <body>
     <div class="dashboard">
@@ -102,89 +103,123 @@ $panel_name = ucfirst($role) . ' Panel';
         <main class="main-content">
             <div class="topbar">
                 <h1>Profile Settings</h1>
-                <div class="user-info">
+                <div class="user-info" onclick="toggleDropdown()">
                     <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
                     <span><?php echo $_SESSION['full_name']; ?></span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="profile.php">👤 Profile Settings</a>
+                        <a href="../logout.php">🚪 Logout</a>
+                    </div>
                 </div>
             </div>
             
             <?php if ($error): ?>
-                <div class="alert alert-error"><?php echo $error; ?></div>
+                <div class="modern-alert modern-alert-error">⚠️ <?php echo $error; ?></div>
             <?php endif; ?>
             
             <?php if ($success): ?>
-                <div class="alert alert-success"><?php echo $success; ?></div>
+                <div class="modern-alert modern-alert-success">✓ <?php echo $success; ?></div>
             <?php endif; ?>
             
-            <div class="card">
-                <div class="card-header">
-                    <h3>Personal Information</h3>
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-header-content">
+                        <div class="profile-avatar-large">
+                            <?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?>
+                        </div>
+                        <div class="profile-info">
+                            <h2><?php echo htmlspecialchars($_SESSION['full_name']); ?></h2>
+                            <p><?php echo ucfirst($role); ?> Account • <?php echo htmlspecialchars($user['email']); ?></p>
+                        </div>
+                    </div>
                 </div>
-                <form method="POST" action="">
-                    <div class="form-group">
-                        <label for="username">Username (cannot be changed)</label>
-                        <input type="text" id="username" class="form-control" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="full_name">Full Name</label>
-                        <input type="text" id="full_name" name="full_name" class="form-control" value="<?php echo htmlspecialchars($user['full_name']); ?>" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone" name="phone" class="form-control" value="<?php echo htmlspecialchars($user['phone']); ?>">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="address">Address</label>
-                        <textarea id="address" name="address" class="form-control" rows="3"><?php echo htmlspecialchars($user['address']); ?></textarea>
-                    </div>
-                    
-                    <button type="submit" name="update_profile" class="btn btn-primary">Update Profile</button>
-                </form>
             </div>
             
-            <div class="card">
-                <div class="card-header">
-                    <h3>Change Password</h3>
+            <div class="profile-container">
+                <div class="profile-grid">
+                    <div class="modern-card">
+                        <div class="modern-card-header">
+                            <div class="card-icon">👤</div>
+                            <h3>Personal Information</h3>
+                        </div>
+                        <form method="POST" action="">
+                            <div class="modern-form-group">
+                                <label for="username">🔒 Username (cannot be changed)</label>
+                                <input type="text" id="username" class="modern-form-control" value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
+                            </div>
+                            
+                            <div class="modern-form-group">
+                                <label for="full_name">✏️ Full Name</label>
+                                <input type="text" id="full_name" name="full_name" class="modern-form-control" value="<?php echo htmlspecialchars($user['full_name']); ?>" required>
+                            </div>
+                            
+                            <div class="modern-form-group">
+                                <label for="email">📧 Email</label>
+                                <input type="email" id="email" name="email" class="modern-form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="modern-form-group">
+                                    <label for="phone">📱 Phone</label>
+                                    <input type="tel" id="phone" name="phone" class="modern-form-control" value="<?php echo htmlspecialchars($user['phone']); ?>">
+                                </div>
+                            </div>
+                            
+                            <div class="modern-form-group">
+                                <label for="address">📍 Address</label>
+                                <textarea id="address" name="address" class="modern-form-control" rows="3"><?php echo htmlspecialchars($user['address']); ?></textarea>
+                            </div>
+                            
+                            <button type="submit" name="update_profile" class="modern-btn modern-btn-primary">
+                                <span>💾 Update Profile</span>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="modern-card">
+                        <div class="modern-card-header">
+                            <div class="card-icon">🔐</div>
+                            <h3>Change Password</h3>
+                        </div>
+                        <form method="POST" action="">
+                            <div class="modern-form-group">
+                                <label for="current_password">🔑 Current Password</label>
+                                <input type="password" id="current_password" name="current_password" class="modern-form-control" required>
+                            </div>
+                            
+                            <div class="modern-form-group">
+                                <label for="new_password">🆕 New Password</label>
+                                <input type="password" id="new_password" name="new_password" class="modern-form-control" required>
+                            </div>
+                            
+                            <div class="modern-form-group">
+                                <label for="confirm_password">✓ Confirm New Password</label>
+                                <input type="password" id="confirm_password" name="confirm_password" class="modern-form-control" required>
+                            </div>
+                            
+                            <button type="submit" name="change_password" class="modern-btn modern-btn-primary">
+                                <span>🔄 Change Password</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <form method="POST" action="">
-                    <div class="form-group">
-                        <label for="current_password">Current Password</label>
-                        <input type="password" id="current_password" name="current_password" class="form-control" required>
+                
+                <?php if ($role != 'admin'): ?>
+                <div class="modern-card danger-zone">
+                    <div class="modern-card-header">
+                        <div class="card-icon">⚠️</div>
+                        <h3 style="color: var(--danger-color);">Danger Zone</h3>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="new_password">New Password</label>
-                        <input type="password" id="new_password" name="new_password" class="form-control" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm New Password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
-                    </div>
-                    
-                    <button type="submit" name="change_password" class="btn btn-primary">Change Password</button>
-                </form>
-            </div>
-            
-            <?php if ($role != 'admin'): ?>
-            <div class="card" style="border-left: 4px solid #f44336;">
-                <div class="card-header">
-                    <h3 style="color: #f44336;">Danger Zone</h3>
+                    <p style="margin-bottom: 20px; color: var(--light-text);">Once you delete your account, there is no going back. Please be certain.</p>
+                    <a href="delete_account.php" class="modern-btn modern-btn-danger" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+                        <span>🗑️ Delete My Account</span>
+                    </a>
                 </div>
-                <p>Once you delete your account, there is no going back. Please be certain.</p>
-                <a href="delete_account.php" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">Delete My Account</a>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
         </main>
     </div>
+<script src="../assets/js/main.js"></script>
 </body>
 </html>
 <?php $conn->close(); ?>

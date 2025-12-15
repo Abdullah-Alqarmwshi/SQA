@@ -114,11 +114,15 @@ $lesson = $res->fetch_assoc();
         <!-- TOPBAR -->
         <div class="topbar">
             <h1>Edit Lesson</h1>
-            <div class="user-info">
+            <div class="user-info" onclick="toggleDropdown()">
                 <div class="user-avatar">
                     <?= strtoupper(substr($_SESSION['full_name'], 0, 1)); ?>
                 </div>
                 <span><?= $_SESSION['full_name']; ?></span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="profile.php">👤 Profile Settings</a>
+                    <a href="../logout.php">🚪 Logout</a>
+                </div>
             </div>
         </div>
 
