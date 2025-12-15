@@ -365,13 +365,13 @@ $submission = $has_submitted ? $submission_result->fetch_assoc() : null;
                 <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="lesson.php">Lesson</a></li>
                 <li><a href="assignments.php">Assignment</a></li>
-                <li><a href="announcements_messages.php">Announcement</a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <li><a href="announcements_messages.php">Announcements</a></li>
+                <!-- profile and logout moved to topbar dropdown -->
             </ul>
         </aside>
 
         <main class="main-content">
+            <?php $page_title = 'Assignment Details'; require_once __DIR__ . '/../includes/topbar.php'; ?>
             <div class="breadcrumb-nav">
                 <a href="assignments.php">
                     <i class="fas fa-arrow-left"></i> Back to Assignments
@@ -578,5 +578,6 @@ $submission = $has_submitted ? $submission_result->fetch_assoc() : null;
             }
         });
     </script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

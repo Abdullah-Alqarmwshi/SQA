@@ -390,23 +390,12 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
                 <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php">Assignments</a></li>
                 <li><a href="announcements_messages.php" class="active">Announcements</a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <!-- profile and logout moved to topbar dropdown -->
             </ul>
         </aside>
 
         <main class="main-content">
-            <div class="topbar">
-                <h1>Manage Announcements</h1>
-                <div class="user-info" onclick="toggleDropdown()">
-                    <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
-                    <span><?php echo $_SESSION['full_name']; ?></span>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.php">👤 Profile Settings</a>
-                        <a href="../logout.php">🚪 Logout</a>
-                    </div>
-                </div>
-            </div>
+            <?php $page_title = 'Manage Announcements'; require_once __DIR__ . '/../includes/topbar.php'; ?>
             
             <?php if ($message): ?>
                 <div class="alert alert-success"><?php echo htmlspecialchars($message); ?></div>
@@ -677,5 +666,6 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
             modal.show();
         }
     </script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

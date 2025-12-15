@@ -103,8 +103,7 @@ $lesson = $res->fetch_assoc();
             <li><a href="mylesson.php" class="active">My Lessons</a></li>
             <li><a href="assignments.php">Assignments</a></li>
             <li><a href="announcements_messages.php">Announcements</a></li>
-            <li><a href="profile.php">Profile Settings</a></li>
-            <li><a href="../logout.php">Logout</a></li>
+            <!-- profile and logout moved to topbar dropdown -->
         </ul>
     </aside>
 
@@ -112,19 +111,7 @@ $lesson = $res->fetch_assoc();
     <main class="main-content">
 
         <!-- TOPBAR -->
-        <div class="topbar">
-            <h1>Edit Lesson</h1>
-            <div class="user-info" onclick="toggleDropdown()">
-                <div class="user-avatar">
-                    <?= strtoupper(substr($_SESSION['full_name'], 0, 1)); ?>
-                </div>
-                <span><?= $_SESSION['full_name']; ?></span>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="profile.php">👤 Profile Settings</a>
-                    <a href="../logout.php">🚪 Logout</a>
-                </div>
-            </div>
-        </div>
+        <?php $page_title = 'Edit Lesson'; require_once __DIR__ . '/../includes/topbar.php'; ?>
 
         <!-- FLOATING EDIT CARD -->
         <div class="edit-modal-card">
@@ -182,5 +169,7 @@ $lesson = $res->fetch_assoc();
 
 </div>
 
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>
+

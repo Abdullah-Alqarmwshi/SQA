@@ -447,26 +447,13 @@ while($row = $result->fetch_assoc()) {
                 <li><a href="lesson.php">Lesson</a></li>
                 <li><a href="assignments.php" class="active">Assignment</a></li>
                 <li><a href="announcements_messages.php">Announcement</a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <!-- profile and logout moved to topbar dropdown -->
             </ul>
         </aside>
 
         <!-- Main Content -->
         <div class="main-content">
-            <div class="topbar" style="background: white; border-radius: 6px; padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="font-size: 24px; font-weight: 600; color: #1f2937; margin: 0;">Assignments</h1>
-                <div class="user-info" onclick="toggleDropdown()" style="display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative;">
-                    <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px;">
-                        <?php echo strtoupper(substr($student_name, 0, 1)); ?>
-                    </div>
-                    <span style="font-size: 14px; font-weight: 500; color: #1f2937;"><?php echo htmlspecialchars($student_name); ?></span>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.php">👤 Profile Settings</a>
-                        <a href="../logout.php">🚪 Logout</a>
-                    </div>
-                </div>
-            </div>
+            <?php $page_title = 'Assignments'; require_once __DIR__ . '/../includes/topbar.php'; ?>
 
             <div class="search-section">
                 <div class="search-box">
@@ -612,5 +599,6 @@ while($row = $result->fetch_assoc()) {
             });
         });
     </script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>
