@@ -4,7 +4,7 @@ define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'classconnect');
-define('DB_PORT', '3306');
+define('DB_PORT', '3307');
 
 // Create connection
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, '', DB_PORT);

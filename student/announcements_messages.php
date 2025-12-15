@@ -20,23 +20,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $announcement_id = intval($_POST['announcement_id']);
         $response_type = $conn->real_escape_string($_POST['response_type']);
         $response_text = $conn->real_escape_string($_POST['response_text']);
-        
-        $check = $conn->query("SELECT id FROM announcement_responses WHERE announcement_id=$announcement_id AND user_id=$user_id");
-        
-        if ($check->num_rows > 0) {
-            $sql = "UPDATE announcement_responses SET response_type='$response_type', response_text='$response_text', responded_at=NOW() 
-                    WHERE announcement_id=$announcement_id AND user_id=$user_id";
-            $message = 'Response updated successfully!';
+
+        // Validate announcement existence and audience/ownership before accepting response
+        $ann_check = $conn->query("SELECT id, target_audience, user_id FROM announcements WHERE id=$announcement_id");
+        if ($ann_check->num_rows == 0) {
+            $error = 'Announcement not found.';
         } else {
-            $sql = "INSERT INTO announcement_responses (announcement_id, user_id, response_type, response_text) 
-                    VALUES ($announcement_id, $user_id, '$response_type', '$response_text')";
-            $message = 'Response submitted successfully!';
+            $ann = $ann_check->fetch_assoc();
+            if ($ann['user_id'] == $user_id) {
+                $error = 'Cannot respond to your own announcement.';
+            } elseif (!in_array($ann['target_audience'], array('All Students', 'Specific'))) {
+                $error = 'You are not allowed to respond to this announcement.';
+            }
         }
-        
-        if ($conn->query($sql) === TRUE) {
-            $current_tab = 'announcements';
-        } else {
-            $error = 'Error submitting response: ' . $conn->error;
+
+        if (empty($error)) {
+            $check = $conn->query("SELECT id FROM announcement_responses WHERE announcement_id=$announcement_id AND user_id=$user_id");
+
+            if ($check->num_rows > 0) {
+                $sql = "UPDATE announcement_responses SET response_type='$response_type', response_text='$response_text', responded_at=NOW() 
+                        WHERE announcement_id=$announcement_id AND user_id=$user_id";
+                $message = 'Response updated successfully!';
+            } else {
+                $sql = "INSERT INTO announcement_responses (announcement_id, user_id, response_type, response_text) 
+                        VALUES ($announcement_id, $user_id, '$response_type', '$response_text')";
+                $message = 'Response submitted successfully!';
+            }
+
+            if ($conn->query($sql) === TRUE) {
+                $current_tab = 'announcements';
+            } else {
+                $error = 'Error submitting response: ' . $conn->error;
+            }
         }
     }
     
@@ -246,24 +261,27 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             padding-bottom: 2px;
         }
         .btn-refresh {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-refresh:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
-            background: linear-gradient(135deg, #5d73e1 0%, #6a4392 100%);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
         .btn-refresh i {
             font-size: 16px;
@@ -484,23 +502,28 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
 
         .btn-respond {
-            background: var(--secondary-gradient);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 16px;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
 
         .btn-respond:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(80, 200, 120, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         .response-form {
@@ -552,22 +575,32 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 10px 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
-            font-size: 14px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
         }
         .btn-primary {
-            background: var(--primary-gradient);
+            background: #1e40af;
             color: white;
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(74, 144, 226, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
+            text-decoration: none;
         }
 
         .message-list {
@@ -864,36 +897,41 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             gap: 8px;
         }
         .message-modal-footer .btn-secondary {
-            background: #6c757d;
-            border: none;
+            background: white;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
         }
         .message-modal-footer .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            background: #f9fafb;
+            border-color: #1e40af;
+            color: #1e40af;
+            transform: translateY(-1px);
         }
 
         .btn-compose-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
             margin-left: auto;
             white-space: nowrap;
         }
         .btn-compose-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
-            background: linear-gradient(135deg, #5d73e1 0%, #6a4392 100%);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         .message-actions {
@@ -903,14 +941,14 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
 
         .btn-send-message {
-            background: var(--primary-gradient) !important;
+            background: #1e40af !important;
             border: none !important;
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3) !important;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25) !important;
         }
         .btn-send-message:hover {
-            background: linear-gradient(135deg, #357ABD 0%, #2A5F99 100%) !important;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(74, 144, 226, 0.4) !important;
+            background: #153e75 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35) !important;
         }
 
         #composeMessageModal .form-label {
@@ -969,41 +1007,50 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             line-height: 1.6;
         }
         .btn-view-message {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-view-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
         .btn-reply-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-reply-message:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         /* Search Section */
@@ -1052,18 +1099,23 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             color: #dc3545;
         }
         .btn-search {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 16px;
+            background: #1e40af;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-search:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
         }
 
         /* Quick Filters */
@@ -1079,31 +1131,35 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             flex-wrap: wrap;
         }
         .filter-btn {
-            padding: 10px 20px;
+            padding: 10px 16px;
             background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            color: #666;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            color: #1f2937;
             text-decoration: none;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
+            gap: 6px;
+            transition: all 0.3s ease;
             position: relative;
             white-space: nowrap;
         }
         .filter-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
-            transform: translateY(-2px);
+            border-color: #1e40af;
+            color: #1e40af;
+            background: #f9fafb;
+            transform: translateY(-1px);
             text-decoration: none;
         }
         .filter-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
+            background: #1e40af;
+            border-color: #1e40af;
             color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .filter-badge {
             background: #dc3545;
@@ -1115,26 +1171,30 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
         .filter-btn.active .filter-badge {
             background: white;
-            color: #667eea;
+            color: #1e40af;
         }
         .btn-mark-all-read {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.25);
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-mark-all-read:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);
-            background: linear-gradient(135deg, #229c3e 0%, #1db38a 100%);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         /* Filter Section Updates */
@@ -1159,33 +1219,6 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         .action-buttons {
             display: flex;
             gap: 10px;
-        }
-        .btn-mark-all-read, .btn-refresh {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-        }
-        .btn-mark-all-read {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-        }
-        .btn-mark-all-read:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
-        }
-        .btn-refresh {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-            color: white;
-        }
-        .btn-refresh:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
         }
 
         /* Announcement Stats */
@@ -1229,20 +1262,25 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             padding: 20px;
         }
         .pagination-btn {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 16px;
+            background: #1e40af;
             color: white;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .pagination-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             color: white;
         }
         .pagination-numbers {
@@ -1252,21 +1290,24 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         .pagination-number {
             padding: 8px 14px;
             background: white;
-            border: 2px solid #e0e0e0;
-            color: #666;
+            border: 1px solid #d1d5db;
+            color: #1f2937;
             text-decoration: none;
             border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         .pagination-number:hover {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: #1e40af;
+            color: #1e40af;
+            background: #f9fafb;
         }
         .pagination-number.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
+            background: #1e40af;
+            border-color: #1e40af;
             color: white;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .pagination-ellipsis {
             padding: 8px 14px;
@@ -1400,10 +1441,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                 <label><i class="bi bi-funnel"></i> Category:</label>
                                 <select name="category" onchange="this.form.submit()" class="filter-select">
                                     <option value="">All Categories</option>
-                                    <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>📚 Academic</option>
-                                    <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>🎉 Event</option>
-                                    <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>📢 General Notice</option>
-                                    <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>📋 Administrative</option>
+                                    <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
+                                    <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>Event</option>
+                                    <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>General Notice</option>
+                                    <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>Administrative</option>
                                     <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>⏰ Reminder</option>
                                 </select>
 
@@ -1558,11 +1599,11 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                             <label><i class="bi bi-check-circle"></i> Response Type:</label>
                                             <select name="response_type" required>
                                                 <option value="">-- Select Response --</option>
-                                                <option value="attending" <?php echo ($ann['my_response'] === 'attending') ? 'selected' : ''; ?>>✅ Attending</option>
-                                                <option value="not_attending" <?php echo ($ann['my_response'] === 'not_attending') ? 'selected' : ''; ?>>❌ Not Attending</option>
-                                                <option value="maybe" <?php echo ($ann['my_response'] === 'maybe') ? 'selected' : ''; ?>>🤔 Maybe</option>
-                                                <option value="acknowledged" <?php echo ($ann['my_response'] === 'acknowledged') ? 'selected' : ''; ?>>👍 Acknowledged</option>
-                                                <option value="comment" <?php echo ($ann['my_response'] === 'comment') ? 'selected' : ''; ?>>💬 Comment</option>
+                                                <option value="attending" <?php echo ($ann['my_response'] === 'attending') ? 'selected' : ''; ?>>Attending</option>
+                                                <option value="not_attending" <?php echo ($ann['my_response'] === 'not_attending') ? 'selected' : ''; ?>>Not Attending</option>
+                                                <option value="maybe" <?php echo ($ann['my_response'] === 'maybe') ? 'selected' : ''; ?>>Maybe</option>
+                                                <option value="acknowledged" <?php echo ($ann['my_response'] === 'acknowledged') ? 'selected' : ''; ?>>Acknowledged</option>
+                                                <option value="comment" <?php echo ($ann['my_response'] === 'comment') ? 'selected' : ''; ?>>Comment</option>
                                             </select>
                                         </div>
 
@@ -1638,7 +1679,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                             <?php elseif ($quick_filter): ?>
                                 <i class="bi bi-inbox"></i> No <?php echo htmlspecialchars($quick_filter); ?> announcements at this time.
                             <?php else: ?>
-                                📢 No announcements available at this time.
+                                No announcements available at this time.
                             <?php endif; ?>
                         </p>
                     <?php endif; ?>

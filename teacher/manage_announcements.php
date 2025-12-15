@@ -121,19 +121,27 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
         }
 
         .btn-create {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
-            padding: 10px 20px;
-            font-size: 14px;
+            padding: 10px 16px;
+            font-size: 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
+        }
+        .btn-create:hover {
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         /* Search input styling */
@@ -204,22 +212,24 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
         .btn, .btn-view, .btn-edit, .btn-delete {
             -webkit-appearance: none;
             appearance: none;
-            padding: 10px 14px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 10px;
+            border-radius: 4px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
             text-decoration: none;
         }
-        .btn-view, .btn-edit { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 12px rgba(102,126,234,0.25);} 
-        .btn-view:hover, .btn-edit:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(102,126,234,0.28); }
-        .btn-delete { background: linear-gradient(135deg, #ff6b6b 0%, #dc3545 100%); color: white; box-shadow: 0 4px 12px rgba(220,53,69,0.2);} 
-        .btn-delete:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(220,53,69,0.28);} 
+        .btn-view, .btn-edit { background: #dbeafe; color: #1e40af;} 
+        .btn-view:hover, .btn-edit:hover { background: #93c5fd; color: #1e3a8a; }
+        .btn-delete { background: #fee2e2; color: #dc2626;} 
+        .btn-delete:hover { background: #fecaca; color: #991b1b;} 
 
         /* Stronger anchor rule for Manage link while present in other pages */
         a.btn-create.no-icon, a.btn-create.no-icon:link, a.btn-create.no-icon:visited { text-decoration: none !important; color: white !important; display: inline-flex; align-items: center; }
@@ -311,46 +321,56 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
 
         .modal-btn-cancel {
             flex: 1;
-            background: #6B7280;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
+            background: white;
+            color: #1f2937;
+            border: 1px solid #d1d5db;
+            padding: 10px 16px;
+            border-radius: 6px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
+            gap: 6px;
+            transition: all 0.3s ease;
             cursor: pointer;
             min-width: 160px;
         }
         
         .modal-btn-cancel:hover {
-            background: #4B5563;
+            background: #f9fafb;
+            border-color: #1e40af;
+            color: #1e40af;
         }
 
         .modal-btn-create {
             flex: 1;
-            background: #6366F1;
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 10px 16px;
+            border-radius: 6px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
+            gap: 6px;
+            transition: all 0.3s ease;
             cursor: pointer;
             min-width: 160px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         
         .modal-btn-create:hover {
-            background: #4F46E5;
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
         
         .announcement-modal-footer i {
@@ -404,11 +424,11 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
                         <label><i class="bi bi-funnel"></i> Category:</label>
                         <select name="category" onchange="this.form.submit()" class="filter-select">
                             <option value="">All Categories</option>
-                            <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>📚 Academic</option>
-                            <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>🎉 Event</option>
-                            <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>📢 General Notice</option>
-                            <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>📋 Administrative</option>
-                            <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>⏰ Reminder</option>
+                            <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
+                            <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>Event</option>
+                            <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>General Notice</option>
+                            <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>Administrative</option>
+                            <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>Reminder</option>
                         </select>
 
                         <label><i class="bi bi-sort-down"></i> Sort by:</label>
@@ -521,7 +541,7 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
                     <?php endwhile; ?>
                 <?php else: ?>
                     <p style="text-align: center; padding: 40px; color: #999;">
-                        📢 No announcements yet. Click "Create New Announcement" to get started!
+                        No announcements yet. Click "Create New Announcement" to get started!
                     </p>
                 <?php endif; ?>
             </div>
@@ -556,19 +576,19 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
                                 <div class="col-md-6">
                                     <label class="form-label">Category</label>
                                     <select name="category" id="category" class="form-select">
-                                        <option value="Academic">📚 Academic</option>
-                                        <option value="Event">🎉 Event</option>
-                                        <option value="General Notice" selected>📢 General Notice</option>
-                                        <option value="Administrative">📋 Administrative</option>
-                                        <option value="Reminder">⏰ Reminder</option>
+                                        <option value="Academic">Academic</option>
+                                        <option value="Event">Event</option>
+                                        <option value="General Notice" selected>General Notice</option>
+                                        <option value="Administrative">Administrative</option>
+                                        <option value="Reminder">Reminder</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Type</label>
                                     <select name="type" id="type" class="form-select">
                                         <option value="general" selected>General</option>
-                                        <option value="urgent">🚨 Urgent</option>
-                                        <option value="event">🎊 Event</option>
+                                        <option value="urgent">Urgent</option>
+                                        <option value="event">Event</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
@@ -582,9 +602,9 @@ $total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements
                                 <div class="col-12">
                                     <label class="form-label">Target Audience</label>
                                     <select name="target_audience" id="target_audience" class="form-select">
-                                        <option value="All Students" selected>👨‍🎓 All Students</option>
-                                        <option value="All Teachers">👨‍🏫 All Teachers</option>
-                                        <option value="Specific">🎯 Specific</option>
+                                        <option value="All Students" selected>All Students</option>
+                                        <option value="All Teachers">All Teachers</option>
+                                        <option value="Specific">Specific</option>
                                     </select>
                                 </div>
                             </div>

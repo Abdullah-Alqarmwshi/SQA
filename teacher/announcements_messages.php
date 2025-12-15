@@ -212,6 +212,14 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             --light-text: #666;
             --border-color: #ddd;
 
+            /* Additional variables for consistency */
+            --bg-white: #ffffff;
+            --bg-light: #f5f7fa;
+            --text-dark: #333;
+            --text-medium: #666;
+            --text-light: #999;
+            --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+
             /* Gradients using original colors */
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
@@ -285,7 +293,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         #announcementModal .modal-header { background: rgba(255,255,255,0.95); padding: 25px 30px; border-radius: 15px 15px 0 0; border-bottom: 3px solid #667eea; }
         #announcementModal .modal-header h2 { margin: 0; color: #667eea; font-size: 24px; display: flex; align-items: center; gap: 10px; }
-        #announcementModal .modal-header h2::before { content: '📢'; font-size: 28px; }
+        #announcementModal .modal-header h2::before { content: ''; font-size: 28px; }
         #announcementModal .modal-body { background: white; padding: 30px; max-height: 70vh; overflow-y: auto; }
         #announcementModal .modal-footer {
             background: white;
@@ -328,52 +336,60 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
 
         /* Button Styles */
         .btn-group { display: flex; gap: 10px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+        .btn-primary { background: #1e40af; color: white; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25); }
         .btn-primary:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
+            text-decoration: none;
         }
-        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary { background: white; color: #1f2937; border: 1px solid #d1d5db; }
         .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            background: #f9fafb;
+            border-color: #1e40af;
+            color: #1e40af;
+            transform: translateY(-1px);
         }
-        .btn-success { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: #1e40af; color: white; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25); }
         .btn-success:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
-        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger { background: #dc2626; color: white; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25); }
         .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            background: #991b1b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
         }
         .btn-create {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
-            padding: 10px 20px;
-            font-size: 14px;
+            padding: 10px 16px;
+            font-size: 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
             white-space: nowrap;
         }
         .btn-create:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
-          .btn-create::before { content: '➕'; }
+          .btn-create::before { content: ''; }
           /* For teacher view we don't want the decorative plus icon on the Manage link.
               Use the helper class `no-icon` to suppress the pseudo-element when present. */
           .btn-create.no-icon::before { content: none !important; }
@@ -771,40 +787,76 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         .message-list { background: #f9f9f9; border-radius: 4px; }
         /* Consistent action buttons (View/Edit/Delete) to match Create styling */
         .btn-view, .btn-edit, .btn-delete {
-            padding: 10px 14px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 10px;
+            border-radius: 4px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
             text-decoration: none;
         }
 
         .btn-view, .btn-edit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .btn-view:hover, .btn-edit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.28);
+            background: #93c5fd;
+            color: #1e3a8a;
         }
 
         .btn-delete {
-            background: linear-gradient(135deg, #ff6b6b 0%, #dc3545 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+            background: #fee2e2;
+            color: #dc2626;
         }
 
         .btn-delete:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(220, 53, 69, 0.28);
+            background: #fecaca;
+            color: #991b1b;
         }
+
+        .unread-badge {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Message Tabs - Pill Style */
+        .message-tabs-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-radius: 12px;
+            background: var(--bg-white);
+            color: var(--text-medium);
+            font-weight: 600;
+            font-size: 14px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
@@ -828,6 +880,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
         }
 
+        .tab i {
+            font-size: 16px;
+        }
+
         .tab-badge {
             background: var(--accent-gradient);
             color: white;
@@ -845,12 +901,23 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         /* Message Filters */
         .message-filters {
             display: flex;
             gap: 15px;
             align-items: center;
             flex-wrap: wrap;
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(74, 144, 226, 0.08);
+            border: 2px solid var(--border-color);
         }
 
         .filter-group {
@@ -862,24 +929,27 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         .filter-group label {
             font-weight: 600;
             font-size: 14px;
-            color: #333;
+            color: var(--text-dark);
             margin: 0;
         }
 
         .filter-select {
-            padding: 8px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 10px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             font-size: 14px;
-            background: white;
+            background: var(--bg-white);
             cursor: pointer;
             transition: all 0.3s;
-            min-width: 150px;
+            min-width: 160px;
+            font-weight: 500;
+            color: var(--text-dark);
         }
 
         .filter-select:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
         }
 
         .search-box {
@@ -890,38 +960,45 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
 
         .search-box input {
             width: 100%;
-            padding: 8px 15px 8px 40px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 10px 16px 10px 42px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s;
+            font-weight: 500;
         }
 
         .search-box input:focus {
             outline: none;
-            border-color: #007bff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
         }
 
         .search-box i {
             position: absolute;
-            left: 12px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: #999;
+            color: var(--primary-color);
+            font-size: 16px;
         }
 
         .view-toggle {
             display: flex;
-            gap: 5px;
+            gap: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.1);
         }
 
         .view-toggle button {
-            padding: 8px 12px;
-            border: 2px solid #e0e0e0;
-            background: white;
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-white);
             cursor: pointer;
             transition: all 0.3s;
             font-size: 16px;
+            color: var(--text-medium);
         }
 
         .view-toggle button:first-child {
@@ -933,13 +1010,15 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
 
         .view-toggle button.active {
-            background: #007bff;
+            background: var(--primary-gradient);
             color: white;
-            border-color: #007bff;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.4);
         }
 
         .view-toggle button:hover:not(.active) {
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #E8F4FD 0%, #FFFFFF 100%);
+            border-color: var(--primary-color);
         }
 
         .tab-content { display: none; }
@@ -947,19 +1026,42 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
 
         .response-item { background: #f0f0f0; padding: 10px; margin: 5px 0; border-radius: 3px; }
 
-        /* Message Item Styles */
+        .message-list {
+            background: var(--bg-white);
+            border-radius: 12px;
+            padding: 10px;
+        }
         .message-item {
-            background: white;
-            border-radius: 10px;
             padding: 18px;
-            margin: 12px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-bottom: 2px solid var(--border-color);
             transition: all 0.3s;
-            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 8px;
         }
         .message-item:hover {
-            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #F8FAFB 0%, #FFFFFF 100%);
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.1);
+        }
+        .message-item.unread {
+            background: linear-gradient(135deg, #E8F4FD 0%, #F0F8FF 100%);
+            font-weight: 600;
+            border-left: 4px solid var(--primary-color);
+        }
+        .message-item h5 {
+            margin: 0 0 8px 0;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        .message-item p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+        .message-item small {
+            color: var(--text-light);
+            font-weight: 500;
         }
         .message-header-row {
             display: flex;
@@ -969,60 +1071,81 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
         }
         .message-actions {
             display: flex;
-            gap: 8px;
-        }
-        .btn-edit-message,
-        .btn-delete-message {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            gap: 10px;
         }
         .message-actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
         }
         .btn-reply-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-reply-message:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
         .btn-edit-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-edit-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        .btn-delete-message {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
             color: white;
         }
+        .btn-delete-message {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+        }
         .btn-delete-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+            background: #991b1b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
+            color: white;
         }
 
         /* Message Modal Styles */
@@ -1097,47 +1220,53 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             line-height: 1.6;
         }
         .btn-view-message {
-            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
         }
         .btn-view-message:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         .btn-compose-message {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1e40af;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.25);
             margin-left: auto;
             white-space: nowrap;
-            min-width: 200px;
-            justify-content: center;
         }
         .btn-compose-message:hover {
-            transform: translateY(-3px);
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+            background: #153e75;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.35);
+            color: white;
         }
 
         .btn-send-message {
@@ -1417,7 +1546,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
                         <?php endwhile; ?>
                     <?php else: ?>
                         <p style="text-align: center; padding: 40px; color: #999;">
-                            📢 No announcements yet. Click "Create New Announcement" to get started!
+                            No announcements yet. Click "Create New Announcement" to get started!
                         </p>
                     <?php endif; ?>
                 </div>
@@ -1444,70 +1573,55 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
                 <!-- ============================================================================ -->
                 <div id="messages" class="main-tab-content <?php echo $current_tab === 'messages' ? 'active' : ''; ?>">
                     <!-- Message Tabs and Compose Button -->
-                    <div class="main-tabs">
-                        <div class="tabs-container">
-                            <button class="main-tab active" onclick="switchTab('inbox', event)">
+                    <div class="message-tabs-container">
+                        <div class="tabs">
+                            <button class="tab active" onclick="switchTab('inbox')">
                                 <i class="bi bi-inbox-fill"></i> Inbox
-                                <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
+                                <?php if ($unread_count > 0) echo '<span class="tab-badge">' . $unread_count . '</span>'; ?>
                             </button>
-                            <button class="main-tab" onclick="switchTab('sent', event)">
+                            <button class="tab" onclick="switchTab('sent')">
                                 <i class="bi bi-send-fill"></i> Sent
                             </button>
                         </div>
-                        <div class="action-buttons">
-                            <button type="button" class="btn-create no-icon" data-bs-toggle="modal" data-bs-target="#composeMessageModal">
-                                <i class="bi bi-envelope-plus"></i> Compose New Message
-                            </button>
-                        </div>
+                        <!-- Compose Message Button -->
+                        <button type="button" class="btn-compose-message" data-bs-toggle="modal" data-bs-target="#composeMessageModal">
+                            <i class="bi bi-envelope-plus"></i> Compose New Message
+                        </button>
                     </div>
 
-                    <!-- Message Filter Section -->
-                    <div class="filter-section">
-                        <div class="filter-row">
-                            <!-- Filter controls -->
-                            <form method="GET" class="filter-group">
-                                <input type="hidden" name="tab" value="messages">
-                                <input type="hidden" name="search" value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
-                                
-                                <div class="filter-group">
-                                    <label><i class="bi bi-funnel"></i> Filter</label>
-                                    <select name="filter" onchange="this.form.submit()" class="filter-select" id="messageFilter">
-                                        <option value="all" <?php echo ($_GET['filter'] ?? 'all') === 'all' ? 'selected' : ''; ?>>All Messages</option>
-                                        <option value="unread" <?php echo ($_GET['filter'] ?? '') === 'unread' ? 'selected' : ''; ?>>Unread Only</option>
-                                        <option value="read" <?php echo ($_GET['filter'] ?? '') === 'read' ? 'selected' : ''; ?>>Read Only</option>
-                                    </select>
-                                </div>
-
-                                <div class="filter-group">
-                                    <label><i class="bi bi-sort-down"></i> Sort by</label>
-                                    <select name="sort" onchange="this.form.submit()" class="filter-select" id="messageSort">
-                                        <option value="newest" <?php echo ($_GET['sort'] ?? 'newest') === 'newest' ? 'selected' : ''; ?>>Newest First</option>
-                                        <option value="oldest" <?php echo ($_GET['sort'] ?? '') === 'oldest' ? 'selected' : ''; ?>>Oldest First</option>
-                                        <option value="sender" <?php echo ($_GET['sort'] ?? '') === 'sender' ? 'selected' : ''; ?>>By Sender</option>
-                                    </select>
-                                </div>
-                            </form>
+                    <!-- Message Filters -->
+                    <div class="message-filters">
+                        <div class="filter-group">
+                            <label>Filter:</label>
+                            <select class="filter-select" id="messageFilter" onchange="filterMessages()">
+                                <option value="all">All Messages</option>
+                                <option value="unread">Unread Only</option>
+                                <option value="read">Read Only</option>
+                            </select>
                         </div>
-                        <!-- Search Bar -->
-                        <form method="GET" class="search-form" id="messageSearchForm">
-                            <input type="hidden" name="tab" value="messages">
-                            <input type="hidden" name="filter" value="<?php echo htmlspecialchars($_GET['filter'] ?? ''); ?>">
-                            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($_GET['sort'] ?? ''); ?>">
-                            <div class="search-input-wrapper">
-                                <i class="bi bi-search search-icon"></i>
-                                <input type="text" 
-                                       name="search" 
-                                       placeholder="Search messages by..." 
-                                       value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>" 
-                                       class="search-input" 
-                                       id="messageSearch">
-                                <?php if ($_GET['search'] ?? ''): ?>
-                                    <a href="?tab=messages" class="search-clear" title="Clear search">
-                                        <i class="bi bi-x-circle"></i>
-                                    </a>
-                                <?php endif; ?>
-                            </div>
-                        </form>
+
+                        <div class="filter-group">
+                            <label>Sort by:</label>
+                            <select class="filter-select" id="messageSort" onchange="sortMessages()">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="sender">By Sender</option>
+                            </select>
+                        </div>
+
+                        <div class="search-box">
+                            <i class="bi bi-search"></i>
+                            <input type="text" id="messageSearch" placeholder="Search messages..." onkeyup="searchMessages()">
+                        </div>
+
+                        <div class="view-toggle">
+                            <button class="active" onclick="toggleView('list')" title="List View">
+                                <i class="bi bi-list-ul"></i>
+                            </button>
+                            <button onclick="toggleView('grid')" title="Grid View">
+                                <i class="bi bi-grid-3x3-gap-fill"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div id="inbox" class="tab-content active">
@@ -2045,12 +2159,12 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             window.history.pushState({}, '', '?tab=' + tabName);
         }
 
-        function switchTab(tabName, event) {
-            event.preventDefault();
+        function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+
             document.getElementById(tabName).classList.add('active');
-            event.target.closest('.tab').classList.add('active');
+            event.target.classList.add('active');
         }
 
         // Message Functions
