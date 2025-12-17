@@ -1,26 +1,32 @@
 <?php
 require_once '../config/session.php';
+checkRole('teacher');
 require_once '../config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = intval($_POST['id']);
-    $title = trim($_POST['title']);
+    $id          = intval($_POST['id']);
+    $title       = trim($_POST['title']);
     $description = trim($_POST['description']);
-    $file_name = '';
+    $file_name   = '';
 
+    // Get old file name stored in "content"
     $res = $conn->query("SELECT content FROM lessons WHERE id=$id");
-    $old = $res->fetch_assoc()['content'];
+    $old = $res && $res->num_rows > 0 ? $res->fetch_assoc()['content'] : '';
 
     if (!empty($_FILES['file']['name'])) {
         $upload_dir = "../uploads/";
-        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
 
-        $file_name = time() . '_' . basename($_FILES['file']['name']);
+        $file_name   = time() . '_' . basename($_FILES['file']['name']);
         $target_path = $upload_dir . $file_name;
         move_uploaded_file($_FILES['file']['tmp_name'], $target_path);
 
         // remove old file
-        if ($old && file_exists("../uploads/$old")) unlink("../uploads/$old");
+        if (!empty($old) && file_exists("../uploads/$old")) {
+            unlink("../uploads/$old");
+        }
     } else {
         $file_name = $old;
     }
@@ -33,4 +39,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: mylesson.php?updated=1");
     exit;
 }
-?>

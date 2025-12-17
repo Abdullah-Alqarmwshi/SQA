@@ -3,8 +3,10 @@ require_once '../config/session.php';
 checkRole('teacher');
 require_once '../config/database.php';
 
-$user_id = $_SESSION['user_id'];
-$lessons = $conn->query("SELECT * FROM lessons WHERE teacher_id=$user_id ORDER BY created_at DESC");
+$user_id = $_SESSION['user_id']; // Get the logged-in teacher's ID
+
+// Query to fetch only lessons belonging to the logged-in teacher
+$lessons = $conn->query("SELECT * FROM lessons WHERE teacher_id = $user_id ORDER BY created_at DESC");
 
 $popupMessage = '';
 if (isset($_GET['updated'])) $popupMessage = 'Lesson updated successfully!';
@@ -22,7 +24,6 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-
 /* PAGE SPACING */
 .main-content {
     padding: 35px 50px;
@@ -156,11 +157,10 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
 
         <!-- HEADER + BUTTON -->
         <div class="d-flex justify-content-end align-items-center mt-4 mb-3">
-    <button class="btn-create" data-bs-toggle="modal" data-bs-target="#addLessonModal">
-        + Create Lesson
-    </button>
-</div>
-
+            <button class="btn-create" data-bs-toggle="modal" data-bs-target="#addLessonModal">
+                + Create Lesson
+            </button>
+        </div>
 
         <!-- LESSON LIST -->
         <?php if ($lessons->num_rows > 0): ?>
@@ -207,7 +207,6 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
     </main>
 </div>
 
-
 <!-- ADD LESSON MODAL -->
 <div class="modal fade" id="addLessonModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
@@ -227,19 +226,7 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
             <input type="text" name="title" class="form-control" required>
           </div>
 
-          <div class="mb-3">
-            <label>Category</label>
-            <select name="category" class="form-control" required>
-              <option value="" disabled selected>Select category</option>
-              <option value="Science">Science</option>
-              <option value="Mathematics">Mathematics</option>
-              <option value="English">English</option>
-              <option value="History">History</option>
-              <option value="Geography">Geography</option>
-              <option value="ICT">ICT</option>
-              <option value="Others">Others</option>
-            </select>
-          </div>
+          <!-- CATEGORY REMOVED -->
 
           <div class="mb-3">
             <label>Description</label>
@@ -247,8 +234,8 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
           </div>
 
           <div class="mb-3">
-            <label>Attachment (optional)</label>
-            <input type="file" name="file" class="form-control">
+            <label>Attachment</label>
+            <input type="file" name="file" class="form-control" required>
           </div>
 
         </div>
@@ -263,7 +250,6 @@ if (isset($_GET['added']))   $popupMessage = 'Lesson added successfully!';
     </div>
   </div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../assets/js/main.js"></script>

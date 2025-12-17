@@ -11,12 +11,12 @@ $student_name = $_SESSION['full_name'];
 // Prepare base query with submission status
 $query = "SELECT a.*, u.full_name as teacher_name,
          CASE 
-            WHEN (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) IS NOT NULL THEN 'graded'
-            WHEN (SELECT id FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) IS NOT NULL THEN 'submitted'
+            WHEN (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) IS NOT NULL THEN 'graded'
+            WHEN (SELECT id FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) IS NOT NULL THEN 'submitted'
             ELSE 'pending'
          END as submission_status,
-         (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) as grade,
-         (SELECT feedback FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) as feedback
+         (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) as grade,
+         (SELECT feedback FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) as feedback
          FROM assignments a
          JOIN users u ON a.teacher_id = u.id
          WHERE 1=1";
@@ -447,26 +447,13 @@ while($row = $result->fetch_assoc()) {
                 <li><a href="lesson.php">Lesson</a></li>
                 <li><a href="assignments.php" class="active">Assignment</a></li>
                 <li><a href="announcements_messages.php">Announcement</a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <!-- profile and logout moved to topbar dropdown -->
             </ul>
         </aside>
 
         <!-- Main Content -->
         <div class="main-content">
-            <div class="topbar" style="background: white; border-radius: 6px; padding: 20px 24px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="font-size: 24px; font-weight: 600; color: #1f2937; margin: 0;">Assignments</h1>
-                <div class="user-info" onclick="toggleDropdown()" style="display: flex; align-items: center; gap: 12px; cursor: pointer; position: relative;">
-                    <div class="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px;">
-                        <?php echo strtoupper(substr($student_name, 0, 1)); ?>
-                    </div>
-                    <span style="font-size: 14px; font-weight: 500; color: #1f2937;"><?php echo htmlspecialchars($student_name); ?></span>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.php">👤 Profile Settings</a>
-                        <a href="../logout.php">🚪 Logout</a>
-                    </div>
-                </div>
-            </div>
+            <?php $page_title = 'Assignments'; require_once __DIR__ . '/../includes/topbar.php'; ?>
 
             <div class="search-section">
                 <div class="search-box">
@@ -519,19 +506,19 @@ while($row = $result->fetch_assoc()) {
                                             </div>
                                             <div>
                                                 <i class="fas fa-calendar"></i>
-                                                <span><?php echo date('M j, Y', strtotime($assignment['due_date'])); ?></span>
+                                                <span><?php echo date('M j, Y g:i A', strtotime($assignment['due_date'])); ?></span>
                                             </div>
                                             <?php if ($is_past_due): ?>
                                             <div>
                                                 <span class="badge bg-danger">
-                                                    <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>
+                                                    <i class="fas fa-calendar-times" style="margin-right: 6px; color: white;"></i>
                                                     Past Due
                                                 </span>
                                             </div>
                                             <?php elseif ($is_due_soon): ?>
                                             <div>
                                                 <span class="badge bg-warning">
-                                                    <i class="fas fa-clock" style="margin-right: 4px;"></i>
+                                                    <i class="fas fa-clock" style="margin-right: 6px; color: white;"></i>
                                                     Due Soon
                                                 </span>
                                             </div>
@@ -612,5 +599,6 @@ while($row = $result->fetch_assoc()) {
             });
         });
     </script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

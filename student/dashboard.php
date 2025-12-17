@@ -7,8 +7,8 @@ $user_id = $_SESSION['user_id'];
 
 // Get statistics
 $lessons_count = $conn->query("SELECT COUNT(*) as count FROM lessons")->fetch_assoc()['count'];
-$my_submissions = $conn->query("SELECT COUNT(*) as count FROM submissions WHERE student_id=$user_id")->fetch_assoc()['count'];
-$pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments WHERE id NOT IN (SELECT assignment_id FROM submissions WHERE student_id=$user_id)")->fetch_assoc()['count'];
+$my_submissions = $conn->query("SELECT COUNT(DISTINCT assignment_id) as count FROM submissions WHERE student_id=$user_id")->fetch_assoc()['count'];
+$pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments WHERE id NOT IN (SELECT DISTINCT assignment_id FROM submissions WHERE student_id=$user_id)")->fetch_assoc()['count'];
 
 ?>
 <!DOCTYPE html>
@@ -35,17 +35,7 @@ $pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments W
         </aside>
         
         <main class="main-content">
-            <div class="topbar">
-                <h1>Dashboard</h1>
-                <div class="user-info" onclick="toggleDropdown()">
-                    <div class="user-avatar"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
-                    <span><?php echo $_SESSION['full_name']; ?></span>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="profile.php">👤 Profile Settings</a>
-                        <a href="../logout.php">🚪 Logout</a>
-                    </div>
-                </div>
-            </div>
+            <?php $page_title = 'Dashboard'; require_once __DIR__ . '/../includes/topbar.php'; ?>
             
             <div class="stats-grid">
                 <div class="stat-card">
@@ -87,6 +77,7 @@ $pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments W
             }
         });
     </script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>
 <?php $conn->close(); ?>

@@ -103,8 +103,7 @@ $lesson = $res->fetch_assoc();
             <li><a href="mylesson.php" class="active">My Lessons</a></li>
             <li><a href="assignments.php">Assignments</a></li>
             <li><a href="announcements_messages.php">Announcements</a></li>
-            <li><a href="profile.php">Profile Settings</a></li>
-            <li><a href="../logout.php">Logout</a></li>
+            <!-- profile and logout moved to topbar dropdown -->
         </ul>
     </aside>
 
@@ -112,21 +111,9 @@ $lesson = $res->fetch_assoc();
     <main class="main-content">
 
         <!-- TOPBAR -->
-        <div class="topbar">
-            <h1>Edit Lesson</h1>
-            <div class="user-info" onclick="toggleDropdown()">
-                <div class="user-avatar">
-                    <?= strtoupper(substr($_SESSION['full_name'], 0, 1)); ?>
-                </div>
-                <span><?= $_SESSION['full_name']; ?></span>
-                <div class="user-dropdown" id="userDropdown">
-                    <a href="profile.php">👤 Profile Settings</a>
-                    <a href="../logout.php">🚪 Logout</a>
-                </div>
-            </div>
-        </div>
+        <?php $page_title = 'Edit Lesson'; require_once __DIR__ . '/../includes/topbar.php'; ?>
 
-        <!-- FLOATING EDIT CARD (MODAL STYLE) -->
+        <!-- FLOATING EDIT CARD -->
         <div class="edit-modal-card">
 
             <span class="close-btn" onclick="window.location='mylesson.php'">&times;</span>
@@ -143,18 +130,7 @@ $lesson = $res->fetch_assoc();
                         value="<?= htmlspecialchars($lesson['title']); ?>" required>
                 </div>
 
-                <!-- Category -->
-                <div class="mb-3">
-                    <label>Category</label>
-                    <select name="category" class="form-control" required>
-                        <option disabled>Select category</option>
-                        <?php foreach ($categories as $cat): ?>
-                            <option value="<?= $cat ?>" <?= ($lesson['category'] === $cat ? 'selected' : '') ?>>
-                                <?= $cat ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <!-- CATEGORY REMOVED -->
 
                 <!-- Description -->
                 <div class="mb-3">
@@ -166,14 +142,14 @@ $lesson = $res->fetch_assoc();
 
                 <!-- File -->
                 <div class="mb-3">
-                    <label>Replace File (optional)</label>
-                    <input type="file" name="file" class="form-control">
+                    <label>File</label>
+                    <input type="file" name="file" class="form-control" required>
 
-                    <?php if (!empty($lesson['file_path'])): ?>
+                    <?php if (!empty($lesson['content'])): ?>
                         <p class="mt-2">
                             Current file:
-                            <a href="../uploads/<?= htmlspecialchars($lesson['file_path']); ?>" target="_blank">
-                                <?= htmlspecialchars($lesson['file_path']); ?>
+                            <a href="../uploads/<?= htmlspecialchars($lesson['content']); ?>" target="_blank">
+                                <?= htmlspecialchars($lesson['content']); ?>
                             </a>
                         </p>
                     <?php endif; ?>
@@ -193,5 +169,7 @@ $lesson = $res->fetch_assoc();
 
 </div>
 
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>
+

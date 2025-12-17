@@ -26,14 +26,18 @@ if ($result->num_rows === 0) {
 
 $assignment = $result->fetch_assoc();
 
-// Fetch submissions for this assignment
+// Fetch submissions for this assignment - only the latest from each student
 $submissions_query = "SELECT s.*, u.full_name as student_name 
                      FROM submissions s 
                      JOIN users u ON s.student_id = u.id 
-                     WHERE s.assignment_id = ?
+                     WHERE s.assignment_id = ? AND s.id IN (
+                        SELECT MAX(id) FROM submissions 
+                        WHERE assignment_id = ? 
+                        GROUP BY student_id
+                     )
                      ORDER BY s.submitted_at DESC";
 $stmt = $conn->prepare($submissions_query);
-$stmt->bind_param("i", $assignment_id);
+$stmt->bind_param("ii", $assignment_id, $assignment_id);
 $stmt->execute();
 $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 ?>
@@ -59,12 +63,12 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
                 <li><a href="mylesson.php">My Lessons</a></li>
                 <li><a href="assignments.php" class="active">Assignments</a></li>
                 <li><a href="announcements_messages.php">Announcements</a></li>
-                <li><a href="profile.php">Profile Settings</a></li>
-                <li><a href="../logout.php">Logout</a></li>
+                <!-- profile and logout moved to topbar dropdown -->
             </ul>
         </aside>
 
         <main class="main-content">
+            <?php $page_title = 'Assignment Details'; require_once __DIR__ . '/../includes/topbar.php'; ?>
             <div class="mb-4">
                 <a href="assignments.php" class="btn btn-link px-0">
                     <i class="fas fa-arrow-left"></i> Back to Assignments
@@ -72,16 +76,13 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             </div>
 
             <div class="card mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <div class="card-header bg-white py-3">
                     <h5 class="mb-0">Assignment Details</h5>
-                    <a href="edit_assignment.php?id=<?php echo $assignment['id']; ?>" class="btn btn-primary btn-sm">
-                        <i class="fas fa-edit"></i> Edit Assignment
-                    </a>
                 </div>
                 <div class="card-body">
                     <h4><?php echo htmlspecialchars($assignment['title']); ?></h4>
                     <div class="text-muted mb-3">
-                        Due: <?php echo date('F j, Y', strtotime($assignment['due_date'])); ?>
+                        Due: <?php echo date('F j, Y g:i A', strtotime($assignment['due_date'])); ?>
                     </div>
                     <div class="mb-4">
                         <?php echo nl2br(htmlspecialchars($assignment['description'])); ?>
@@ -216,5 +217,6 @@ $submissions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             }
         });
     </script>
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

@@ -10,9 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description']);
     $file_name   = '';
 
-    // Allowed file types (videos + images + pdf + documents)
-    $allowed_extensions = ['mp4','mov','avi','mkv','webm','pdf','jpg','jpeg','png','doc','docx','ppt','pptx'];
-
     if (!empty($_FILES['file']['name'])) {
 
         $upload_dir = "../uploads/";
@@ -22,20 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $file_tmp  = $_FILES['file']['tmp_name'];
         $file_orig = $_FILES['file']['name'];
-        $ext = strtolower(pathinfo($file_orig, PATHINFO_EXTENSION));
 
-        // Validate extension
-        if (!in_array($ext, $allowed_extensions)) {
-            die("❌ This file type is not allowed. Allowed: mp4, mov, avi, mkv, webm, pdf, jpg, png, doc, ppt");
-        }
-
-        // NEW FILE NAME
-        $file_name = time() . '_' . preg_replace("/[^A-Za-z0-9._-]/", "_", $file_orig);
+        // Allow ALL file types – just sanitise the name
+        $file_name   = time() . '_' . preg_replace("/[^A-Za-z0-9._-]/", "_", $file_orig);
         $target_path = $upload_dir . $file_name;
 
         // Upload
         if (!move_uploaded_file($file_tmp, $target_path)) {
-            die("❌ File upload failed. The file may be too large.");
+            die("❌ File upload failed. The file may be too large or there was a server error.");
         }
     }
 
