@@ -43,7 +43,9 @@ if (!file_exists($upload_dir)) {
     mkdir($upload_dir, 0777, true);
 }
 
-$file_name = time() . '_' . $student_id . '_' . $assignment_id . '.' . $file_ext;
+// Keep original filename but add unique prefix
+$original_name = pathinfo($file['name'], PATHINFO_FILENAME);
+$file_name = time() . '_' . sanitize_filename($original_name) . '.' . $file_ext;
 $file_path = $upload_dir . $file_name;
 
 if (!move_uploaded_file($file['tmp_name'], $file_path)) {
@@ -51,31 +53,56 @@ if (!move_uploaded_file($file['tmp_name'], $file_path)) {
     exit;
 }
 
+// Store relative path from project root (uploads/submissions/filename.pdf)
+$relative_db_path = 'uploads/submissions/' . $file_name;
+
+// Function to sanitize filename
+function sanitize_filename($filename) {
+    $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+    $filename = preg_replace('/\.+/', '.', $filename);
+    $filename = trim($filename, '.');
+    return $filename ?: 'file';
+}
+
 // Update database
 if ($is_resubmission) {
     // Get previous submission to delete old file
-    $stmt = $conn->prepare("SELECT file_path FROM submissions WHERE assignment_id = ? AND student_id = ?");
+    $stmt = $conn->prepare("SELECT file_path FROM submissions WHERE assignment_id = ? AND student_id = ? LIMIT 1");
     $stmt->bind_param("ii", $assignment_id, $student_id);
     $stmt->execute();
     $old_submission = $stmt->get_result()->fetch_assoc();
     
-    if ($old_submission && file_exists($old_submission['file_path'])) {
-        unlink($old_submission['file_path']);
+    if ($old_submission && !empty($old_submission['file_path'])) {
+        // Try to delete old file - handle both relative and absolute paths
+        $old_file = $old_submission['file_path'];
+        // If path starts with '../', prepend './' to make it relative from this file's location
+        if (strpos($old_file, '../') === 0) {
+            $old_file = './' . $old_file;
+        }
+        if (file_exists($old_file)) {
+            unlink($old_file);
+        }
     }
     
     // Update submission record
     $stmt = $conn->prepare("UPDATE submissions SET file_path = ?, submitted_at = NOW() WHERE assignment_id = ? AND student_id = ?");
-    $stmt->bind_param("sii", $file_path, $assignment_id, $student_id);
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("sii", $relative_db_path, $assignment_id, $student_id);
 } else {
     // Create new submission record
     $stmt = $conn->prepare("INSERT INTO submissions (assignment_id, student_id, file_path, submitted_at) VALUES (?, ?, ?, NOW())");
-    $stmt->bind_param("iis", $assignment_id, $student_id, $file_path);
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+    $stmt->bind_param("iis", $assignment_id, $student_id, $relative_db_path);
 }
 
 if ($stmt->execute()) {
     header('Location: ../student/view_assignment.php?id=' . $assignment_id . '&success=submitted');
 } else {
     unlink($file_path); // Delete uploaded file if database insert fails
-    header('Location: ../student/view_assignment.php?id=' . $assignment_id . '&error=submission_failed');
+    die("Error executing statement: " . $stmt->error);
 }
 ?>

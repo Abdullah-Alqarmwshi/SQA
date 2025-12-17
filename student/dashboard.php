@@ -7,8 +7,8 @@ $user_id = $_SESSION['user_id'];
 
 // Get statistics
 $lessons_count = $conn->query("SELECT COUNT(*) as count FROM lessons")->fetch_assoc()['count'];
-$my_submissions = $conn->query("SELECT COUNT(*) as count FROM submissions WHERE student_id=$user_id")->fetch_assoc()['count'];
-$pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments WHERE id NOT IN (SELECT assignment_id FROM submissions WHERE student_id=$user_id)")->fetch_assoc()['count'];
+$my_submissions = $conn->query("SELECT COUNT(DISTINCT assignment_id) as count FROM submissions WHERE student_id=$user_id")->fetch_assoc()['count'];
+$pending_assignments = $conn->query("SELECT COUNT(*) as count FROM assignments WHERE id NOT IN (SELECT DISTINCT assignment_id FROM submissions WHERE student_id=$user_id)")->fetch_assoc()['count'];
 
 ?>
 <!DOCTYPE html>

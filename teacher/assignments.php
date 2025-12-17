@@ -11,8 +11,8 @@ $teacher_name = $_SESSION['full_name'];
 
 // Build query with filter support
 $query = "SELECT a.*, 
-         (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.id) as submission_count,
-         (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.id AND s.grade IS NOT NULL) as graded_count
+         (SELECT COUNT(DISTINCT student_id) FROM submissions s WHERE s.assignment_id = a.id) as submission_count,
+         (SELECT COUNT(DISTINCT student_id) FROM submissions s WHERE s.assignment_id = a.id AND s.grade IS NOT NULL) as graded_count
          FROM assignments a 
          WHERE a.teacher_id = ?";
 
@@ -645,7 +645,7 @@ while($row = $result->fetch_assoc()) {
                             <div class="assignment-meta">
                                 <div class="meta-item">
                                     <div class="meta-label">Due Date</div>
-                                    <div class="meta-value"><?php echo date('M j, Y', strtotime($assignment['due_date'])); ?></div>
+                                    <div class="meta-value"><?php echo date('M j, Y g:i A', strtotime($assignment['due_date'])); ?></div>
                                 </div>
                                 <div class="meta-item">
                                     <div class="meta-label">Created</div>
@@ -709,8 +709,8 @@ while($row = $result->fetch_assoc()) {
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Due Date</label>
-                            <input type="date" id="inpDue" name="due_date" class="form-control" required>
+                            <label class="form-label">Due Date & Time</label>
+                            <input type="datetime-local" id="inpDue" name="due_date" class="form-control" required>
                         </div>
 
                         <div class="form-group">
