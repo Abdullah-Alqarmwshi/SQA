@@ -289,6 +289,8 @@ body {
     flex: 1;
     padding: 30px;
     width: calc(100% - 260px);
+    position: relative;
+    z-index: auto;
 }
 
 .topbar {
@@ -300,6 +302,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    z-index: 10;
 }
 
 .topbar h1 {
@@ -317,6 +321,7 @@ body {
     padding: 10px 14px;
     border-radius: 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 99999 !important;
 }
 
 .user-info:hover {
@@ -351,7 +356,7 @@ body {
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     min-width: 200px;
     display: none;
-    z-index: 1000;
+    z-index: 99999 !important;
     border: 1px solid var(--border-color);
 }
 
@@ -419,7 +424,7 @@ body {
     visibility: hidden;
     transform: translateY(-10px) scale(0.95);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
+    z-index: 9999;
     border: 1px solid rgba(30, 64, 175, 0.1);
     overflow: hidden;
 }
@@ -468,6 +473,8 @@ body {
     margin-bottom: 24px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
+    position: relative;
+    z-index: 1;
 }
 
 .card-header {
@@ -487,6 +494,8 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
     margin-bottom: 24px;
+    position: relative;
+    z-index: auto;
 }
 
 .stat-card {
@@ -497,6 +506,8 @@ body {
     border-left: 4px solid var(--primary-color);
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .stat-card:hover {

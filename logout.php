@@ -17,7 +17,7 @@ if (isset($_GET['confirm']) && $_GET['confirm'] == 'yes') {
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -43,7 +43,7 @@ if (isset($_GET['confirm']) && $_GET['confirm'] == 'yes') {
             width: 80px;
             height: 80px;
             margin: 0 auto 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -82,13 +82,13 @@ if (isset($_GET['confirm']) && $_GET['confirm'] == 'yes') {
         }
         
         .btn-danger {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             color: white;
         }
         
         .btn-danger:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 20px rgba(30, 64, 175, 0.4);
         }
         
         .btn-secondary {
