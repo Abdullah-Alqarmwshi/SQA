@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Database Migration Runner
  * Run this script to automatically apply database migrations
@@ -16,19 +17,22 @@ ini_set('display_errors', 1);
 // Set execution time limit
 set_time_limit(300);
 
-class MigrationRunner {
+class MigrationRunner
+{
     private $conn;
     private $migrationsPath;
-    
-    public function __construct($connection) {
+
+    public function __construct($connection)
+    {
         $this->conn = $connection;
         $this->migrationsPath = __DIR__ . '/migrations/';
     }
-    
+
     /**
      * Initialize migrations table if it doesn't exist
      */
-    private function initMigrationsTable() {
+    private function initMigrationsTable()
+    {
         $sql = "CREATE TABLE IF NOT EXISTS `migrations` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `migration` varchar(255) NOT NULL,
@@ -36,116 +40,120 @@ class MigrationRunner {
             PRIMARY KEY (`id`),
             UNIQUE KEY `migration` (`migration`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci";
-        
+
         return $this->conn->query($sql);
     }
-    
+
     /**
      * Get list of executed migrations
      */
-    private function getExecutedMigrations() {
+    private function getExecutedMigrations()
+    {
         $executed = [];
         $result = $this->conn->query("SELECT migration FROM migrations ORDER BY id");
-        
+
         if ($result) {
             while ($row = $result->fetch_assoc()) {
                 $executed[] = $row['migration'];
             }
         }
-        
+
         return $executed;
     }
-    
+
     /**
      * Get list of pending migrations
      */
-    private function getPendingMigrations() {
+    private function getPendingMigrations()
+    {
         $allMigrations = glob($this->migrationsPath . '*.sql');
         $executed = $this->getExecutedMigrations();
         $pending = [];
-        
+
         foreach ($allMigrations as $file) {
             $filename = basename($file);
             if (!in_array($filename, $executed)) {
                 $pending[] = $file;
             }
         }
-        
+
         sort($pending); // Ensure migrations run in order
         return $pending;
     }
-    
+
     /**
      * Execute a migration file
      */
-    private function executeMigration($filepath) {
+    private function executeMigration($filepath)
+    {
         $filename = basename($filepath);
         $sql = file_get_contents($filepath);
-        
+
         if (empty($sql)) {
             throw new Exception("Migration file is empty: $filename");
         }
-        
+
         // Split SQL into individual statements
         $statements = array_filter(
             array_map('trim', explode(';', $sql)),
-            function($stmt) {
-                return !empty($stmt) && 
-                       strpos($stmt, '--') !== 0 && 
-                       strpos($stmt, '/*') !== 0;
+            function ($stmt) {
+                return !empty($stmt) &&
+                    strpos($stmt, '--') !== 0 &&
+                    strpos($stmt, '/*') !== 0;
             }
         );
-        
+
         // Execute each statement
         foreach ($statements as $statement) {
             if (!empty($statement)) {
                 if (!$this->conn->query($statement)) {
                     throw new Exception(
-                        "Error in migration $filename: " . $this->conn->error . 
-                        "\nSQL: " . substr($statement, 0, 200)
+                        "Error in migration $filename: " . $this->conn->error .
+                            "\nSQL: " . substr($statement, 0, 200)
                     );
                 }
             }
         }
-        
+
         // Record migration as executed
         $stmt = $this->conn->prepare("INSERT INTO migrations (migration) VALUES (?)");
         $stmt->bind_param("s", $filename);
-        
+
         if (!$stmt->execute()) {
             throw new Exception("Failed to record migration: " . $this->conn->error);
         }
-        
+
         return true;
     }
-    
+
     /**
      * Run all pending migrations
      */
-    public function run() {
+    public function run()
+    {
         $output = [];
         $output[] = "=== Database Migration Runner ===\n";
-        
+
         try {
             // Initialize migrations table
             $this->initMigrationsTable();
             $output[] = "✓ Migrations table initialized\n";
-            
+
             // Get pending migrations
             $pending = $this->getPendingMigrations();
-            
+
             if (empty($pending)) {
                 $output[] = "✓ No pending migrations. Database is up to date!\n";
                 return $output;
             }
-            
+
             $output[] = "Found " . count($pending) . " pending migration(s):\n";
-            
+
             // Execute each migration
             foreach ($pending as $migration) {
                 $filename = basename($migration);
                 $output[] = "\nExecuting: $filename";
-                
+
                 try {
                     $this->executeMigration($migration);
                     $output[] = "  ✓ Success\n";
@@ -154,35 +162,35 @@ class MigrationRunner {
                     throw $e; // Stop on first error
                 }
             }
-            
+
             $output[] = "\n=== All migrations completed successfully! ===\n";
-            
         } catch (Exception $e) {
             $output[] = "\n✗ Migration failed: " . $e->getMessage() . "\n";
             $output[] = "Please fix the error and run migrations again.\n";
         }
-        
+
         return $output;
     }
-    
+
     /**
      * Show migration status
      */
-    public function status() {
+    public function status()
+    {
         $output = [];
         $output[] = "=== Migration Status ===\n";
-        
+
         try {
             $this->initMigrationsTable();
-            
+
             $executed = $this->getExecutedMigrations();
             $pending = $this->getPendingMigrations();
-            
+
             $output[] = "\nExecuted migrations (" . count($executed) . "):";
             foreach ($executed as $migration) {
                 $output[] = "  ✓ $migration";
             }
-            
+
             $output[] = "\nPending migrations (" . count($pending) . "):";
             if (empty($pending)) {
                 $output[] = "  (none)";
@@ -191,11 +199,10 @@ class MigrationRunner {
                     $output[] = "  ○ " . basename($migration);
                 }
             }
-            
         } catch (Exception $e) {
             $output[] = "Error: " . $e->getMessage();
         }
-        
+
         return $output;
     }
 }
@@ -287,4 +294,3 @@ if (php_sapi_name() === 'cli') {
 </body>
 </html>";
 }
-?>
