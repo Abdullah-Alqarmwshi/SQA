@@ -130,6 +130,23 @@ if ($conn->query($sql) === TRUE) {
     $errors[] = "Error creating announcement responses table: " . $conn->error;
 }
 
+// Create announcement_reads table
+$sql = "CREATE TABLE IF NOT EXISTS announcement_reads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    announcement_id INT NOT NULL,
+    user_id INT NOT NULL,
+    read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_read (announcement_id, user_id)
+)";
+
+if ($conn->query($sql) === TRUE) {
+    $tables_created[] = 'Announcement Reads table';
+} else {
+    $errors[] = "Error creating announcement_reads table: " . $conn->error;
+}
+
 // Create messages table
 $sql = "CREATE TABLE IF NOT EXISTS messages (
     id INT AUTO_INCREMENT PRIMARY KEY,

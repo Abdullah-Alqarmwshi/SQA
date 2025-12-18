@@ -58,14 +58,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     } elseif ($action === 'delete') {
         $announcement_id = intval($_POST['announcement_id']);
-        $sql = "DELETE a FROM announcements a
-            JOIN users u ON a.user_id = u.id
-            WHERE a.id=$announcement_id AND u.role='admin'";
+        
+        // Check if announcement was created by a teacher
+        $check_sql = "SELECT u.role FROM announcements a
+                      JOIN users u ON a.user_id = u.id
+                      WHERE a.id = $announcement_id";
+        $check_result = $conn->query($check_sql);
+        
+        if ($check_result && $check_result->num_rows > 0) {
+            $creator = $check_result->fetch_assoc();
+            
+            // Prevent deletion if created by teacher
+            if ($creator['role'] === 'teacher') {
+                $error = 'You cannot delete announcements created by teachers. Only the teacher who created it can delete it.';
+            } else {
+                // Only allow deletion of admin-created announcements
+                $sql = "DELETE a FROM announcements a
+                        JOIN users u ON a.user_id = u.id
+                        WHERE a.id=$announcement_id AND u.role='admin'";
 
-        if ($conn->query($sql) === TRUE) {
-            $message = 'Announcement deleted successfully!';
+                if ($conn->query($sql) === TRUE) {
+                    if ($conn->affected_rows > 0) {
+                        $message = 'Announcement deleted successfully!';
+                    } else {
+                        $error = 'Announcement not found or you do not have permission to delete it.';
+                    }
+                } else {
+                    $error = 'Error deleting announcement: ' . $conn->error;
+                }
+            }
         } else {
-            $error = 'Error deleting announcement: ' . $conn->error;
+            $error = 'Announcement not found.';
         }
     } elseif ($action === 'send_message') {
         // Handle Send Message
@@ -130,7 +153,7 @@ $category_filter = isset($_GET['category']) ? $conn->real_escape_string($_GET['c
 $sort_by = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
 
 // Build announcements query with filters (admin can see all, but respect target audience)
-$announcements_sql = "SELECT a.*, u.full_name FROM announcements a
+$announcements_sql = "SELECT a.*, u.full_name, u.role as creator_role FROM announcements a
                       JOIN users u ON a.user_id = u.id
                       WHERE a.target_audience IN ('All Students', 'All Teachers') OR u.role = 'teacher'";
 
@@ -1331,10 +1354,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                             <button class="btn-edit" onclick='openEditModal(<?php echo json_encode($ann); ?>)'>
                                                 <i class="bi bi-pencil"></i> Edit
                                             </button>
-                                            <form method="POST" style="display:inline;">
+                                            <form method="POST" style="display:inline;" id="deleteForm_<?php echo $ann['id']; ?>">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
-                                                <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this announcement?');">
+                                                <button type="submit" class="btn-delete" onclick="return checkDeletePermission(<?php echo $ann['id']; ?>, '<?php echo $ann['creator_role']; ?>', '<?php echo htmlspecialchars($ann['full_name'], ENT_QUOTES); ?>');">
                                                     <i class="bi bi-trash"></i> Delete
                                                 </button>
                                             </form>
@@ -1715,6 +1738,16 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                 this.submit();
             }
         });
+
+        // Check delete permission - prevent deletion of teacher-created announcements
+        function checkDeletePermission(announcementId, creatorRole, creatorName) {
+            if (creatorRole === 'teacher') {
+                alert('You cannot delete announcements created by teachers.\n\nThis announcement was created by: ' + creatorName + '\n\nOnly the teacher who created it can delete it.');
+                return false; // Prevent form submission
+            }
+            // If created by admin, show normal confirmation
+            return confirm('Are you sure you want to delete this announcement?');
+        }
 
         // Modal Functions
         function openAnnouncementModal() {
