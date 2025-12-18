@@ -41,18 +41,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
             } else {
                 $announcement_id = intval($_POST['announcement_id']);
-                $sql = "UPDATE announcements a
-                    JOIN users u ON a.user_id = u.id
-                    SET a.title='$title', a.content='$content', a.category='$category',
-                    a.type='$type', a.event_date=" . ($event_date ? "'$event_date'" : "NULL") . ",
-                    a.expiry_date=" . ($expiry_date ? "'$expiry_date'" : "NULL") . ",
-                    a.target_audience='$target_audience', a.updated_at=NOW()
-                    WHERE a.id=$announcement_id AND u.role='admin'";
+                
+                // Check if announcement was created by a teacher
+                $check_sql = "SELECT u.role FROM announcements a
+                              JOIN users u ON a.user_id = u.id
+                              WHERE a.id = $announcement_id";
+                $check_result = $conn->query($check_sql);
+                
+                if ($check_result && $check_result->num_rows > 0) {
+                    $creator = $check_result->fetch_assoc();
+                    
+                    // Prevent editing if created by teacher
+                    if ($creator['role'] === 'teacher') {
+                        $error = 'You cannot edit announcements created by teachers. Only the teacher who created it can edit it.';
+                    } else {
+                        // Only allow editing of admin-created announcements
+                        $sql = "UPDATE announcements a
+                            JOIN users u ON a.user_id = u.id
+                            SET a.title='$title', a.content='$content', a.category='$category',
+                            a.type='$type', a.event_date=" . ($event_date ? "'$event_date'" : "NULL") . ",
+                            a.expiry_date=" . ($expiry_date ? "'$expiry_date'" : "NULL") . ",
+                            a.target_audience='$target_audience', a.updated_at=NOW()
+                            WHERE a.id=$announcement_id AND u.role='admin'";
 
-                if ($conn->query($sql) === TRUE) {
-                    $message = 'Announcement updated successfully!';
+                        if ($conn->query($sql) === TRUE) {
+                            if ($conn->affected_rows > 0) {
+                                $message = 'Announcement updated successfully!';
+                            } else {
+                                $error = 'Announcement not found or you do not have permission to edit it.';
+                            }
+                        } else {
+                            $error = 'Error updating announcement: ' . $conn->error;
+                        }
+                    }
                 } else {
-                    $error = 'Error updating announcement: ' . $conn->error;
+                    $error = 'Announcement not found.';
                 }
             }
         }
@@ -100,18 +123,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if (empty($recipient_id) || empty($subject) || empty($message_text)) {
             $error = 'Recipient, subject and message are required.';
         } else {
+            // If this is a reply, check if admin has permission to reply
             if ($reply_to) {
-                $sql = "INSERT INTO messages (sender_id, recipient_id, reply_to, subject, message)
-                        VALUES ($user_id, $recipient_id, $reply_to, '$subject', '$message_text')";
-            } else {
-                $sql = "INSERT INTO messages (sender_id, recipient_id, subject, message)
-                        VALUES ($user_id, $recipient_id, '$subject', '$message_text')";
+                $check_reply_sql = "SELECT m.sender_id, m.recipient_id, u.role as sender_role 
+                                    FROM messages m
+                                    JOIN users u ON m.sender_id = u.id
+                                    WHERE m.id = $reply_to";
+                $check_reply_result = $conn->query($check_reply_sql);
+                
+                if ($check_reply_result && $check_reply_result->num_rows > 0) {
+                    $original_msg = $check_reply_result->fetch_assoc();
+                    
+                    // Check if message was sent TO admin (admin is the recipient)
+                    if ($original_msg['recipient_id'] != $user_id) {
+                        $error = 'You can only reply to messages that were sent to you.';
+                    } elseif ($original_msg['sender_role'] === 'teacher' && $original_msg['recipient_id'] != $user_id) {
+                        $error = 'You cannot reply to messages from teachers that were not sent to you.';
+                    }
+                } else {
+                    $error = 'Original message not found.';
+                }
             }
+            
+            // Only proceed if no error occurred
+            if (empty($error)) {
+                if ($reply_to) {
+                    $sql = "INSERT INTO messages (sender_id, recipient_id, reply_to, subject, message)
+                            VALUES ($user_id, $recipient_id, $reply_to, '$subject', '$message_text')";
+                } else {
+                    $sql = "INSERT INTO messages (sender_id, recipient_id, subject, message)
+                            VALUES ($user_id, $recipient_id, '$subject', '$message_text')";
+                }
 
-            if ($conn->query($sql) === TRUE) {
-                $message = 'Message sent successfully!';
-            } else {
-                $error = 'Error sending message: ' . $conn->error;
+                if ($conn->query($sql) === TRUE) {
+                    $message = 'Message sent successfully!';
+                } else {
+                    $error = 'Error sending message: ' . $conn->error;
+                }
             }
         }
     } elseif ($action === 'mark_read') {
@@ -187,19 +235,14 @@ if (isset($_GET['edit'])) {
     }
 }
 
-// Get responses for announcements
-$responses_query = "SELECT ar.*, u.full_name, a.title as announcement_title FROM announcement_responses ar
-                    JOIN users u ON ar.user_id = u.id
-                    JOIN announcements a ON ar.announcement_id = a.id
-                    ORDER BY ar.responded_at DESC LIMIT 15";
-$recent_responses = $conn->query($responses_query);
+// Removed Recent Responses - not needed
 
 // ============================================================================
 // MESSAGES HANDLING
 // ============================================================================
 
-// Get inbox messages
-$inbox = $conn->query("SELECT m.*, u.full_name FROM messages m
+// Get inbox messages (messages sent TO admin)
+$inbox = $conn->query("SELECT m.*, u.full_name, u.role as sender_role FROM messages m
                        JOIN users u ON m.sender_id = u.id
                        WHERE m.recipient_id=$user_id
                        ORDER BY m.sent_at DESC");
@@ -224,25 +267,115 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
     <title>Announcements & Messages - ClassConnect</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         :root {
-            /* Original ClassConnect Color Scheme */
-            --primary-color: #667eea;
-            --secondary-color: #764ba2;
-            --success-color: #4CAF50;
-            --danger-color: #f44336;
-            --warning-color: #ff9800;
-            --info-color: #2196F3;
-            --light-bg: #f5f7fa;
-            --dark-text: #333;
-            --light-text: #666;
-            --border-color: #ddd;
+            /* Consistent Color Scheme - Primary: #1e40af */
+            --primary-color: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --light-bg: #f8fafc;
+            --lighter-bg: #f1f5f9;
+            --dark-text: #1e293b;
+            --light-text: #64748b;
+            --border-color: #e2e8f0;
+        }
 
-            /* Gradients using original colors */
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 50%, #e8e8e8 100%);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header h1 i {
+            color: #1e40af;
+        }
+
+        /* Sidebar Menu Active State */
+        .sidebar-menu a.active {
+            background: linear-gradient(90deg, rgba(30, 64, 175, 0.1) 0%, rgba(30, 64, 175, 0.05) 100%);
+            color: #1e40af;
+            border-left: 4px solid #1e40af;
+        }
+
+        .sidebar-menu a.active i {
+            color: #1e40af;
+        }
+
+        /* Icons and Buttons - Primary Color #1e40af */
+        .btn-create i,
+        .btn-edit i,
+        .btn-view-message i,
+        .btn-reply-message i,
+        .btn-compose-message i,
+        .main-tab i,
+        .filter-group label i,
+        .author-name i,
+        .meta-item i {
+            color: #1e40af;
+        }
+
+        .btn-secondary:hover i {
+            color: #1e40af;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .btn-create {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-create:hover {
+            background: #153e75;
+            color: white;
+            text-decoration: none;
         }
 
         .main-tabs {
@@ -268,11 +401,17 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             margin-bottom: -12px;
         }
         .main-tab:hover {
-            color: var(--primary-color);
+            color: #1e40af;
+        }
+        .main-tab:hover i {
+            color: #1e40af;
         }
         .main-tab.active {
-            border-bottom-color: var(--primary-color);
-            color: var(--primary-color);
+            border-bottom-color: #1e40af;
+            color: #1e40af;
+        }
+        .main-tab.active i {
+            color: #1e40af;
         }
         .action-buttons {
             display: flex;
@@ -283,23 +422,23 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         .main-tab-content.active { display: block; }
         .unread-badge {
             display: inline-block;
-            background: var(--accent-gradient);
+            background: #1e40af;
             color: white;
             padding: 4px 10px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 700;
             margin-left: 5px;
-            box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.3);
         }
 
         /* Announcement Modal Styles (Custom) */
         #announcementModal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        #announcementModal .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); margin: 2% auto; padding: 0; border-radius: 15px; width: 90%; max-width: 700px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideDown 0.3s; }
+        #announcementModal .modal-content { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); margin: 2% auto; padding: 0; border-radius: 15px; width: 90%; max-width: 700px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideDown 0.3s; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        #announcementModal .modal-header { background: rgba(255,255,255,0.95); padding: 25px 30px; border-radius: 15px 15px 0 0; border-bottom: 3px solid #667eea; }
-        #announcementModal .modal-header h2 { margin: 0; color: #667eea; font-size: 24px; display: flex; align-items: center; gap: 10px; }
+        #announcementModal .modal-header { background: rgba(255,255,255,0.95); padding: 25px 30px; border-radius: 15px 15px 0 0; border-bottom: 3px solid #1e40af; }
+        #announcementModal .modal-header h2 { margin: 0; color: #1e40af; font-size: 24px; display: flex; align-items: center; gap: 10px; }
         #announcementModal .modal-header h2::before { content: ''; font-size: 28px; }
         #announcementModal .modal-body { background: white; padding: 30px; max-height: 70vh; overflow-y: auto; }
         #announcementModal .modal-footer {
@@ -326,7 +465,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             gap: 6px;
         }
         #announcementModal .close { color: #999; float: right; font-size: 32px; font-weight: bold; cursor: pointer; transition: color 0.3s; line-height: 1; }
-        #announcementModal .close:hover { color: #667eea; }
+        #announcementModal .close:hover { color: #1e40af; }
 
         /* Form Styles */
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
@@ -338,7 +477,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: all 0.3s; font-family: inherit;
         }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-            outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
         }
         .form-group textarea { resize: vertical; min-height: 120px; }
         .form-group select { cursor: pointer; background: white; }
@@ -431,7 +570,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid #1e40af;
         }
 
         .announcement-card:hover {
@@ -504,7 +643,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
 
         .meta-item i {
-            color: #667eea;
+            color: #1e40af;
             font-size: 16px;
         }
 
@@ -605,8 +744,8 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
         .announcement-actions { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; }
 
-        .response-item { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 3px solid #667eea; }
-        .response-item strong { color: #667eea; }
+        .response-item { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 3px solid #1e40af; }
+        .response-item strong { color: #1e40af; }
 
         /* Search Section */
         .search-section {
@@ -747,7 +886,11 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             transition: background 0.2s;
         }
         .message-item:hover { background: #f0f0f0; }
-        .message-item.unread { background: #e3f2fd; font-weight: bold; }
+        .message-item.unread { 
+            background: #e3f2fd; 
+            font-weight: bold; 
+            border-left: 4px solid #1e40af;
+        }
         .message-item h5 { margin: 0 0 5px 0; }
         .message-item p { margin: 0; font-size: 0.9em; color: #666; }
         .message-item small { color: #999; }
@@ -785,7 +928,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
 
         .tab.active {
-            background: var(--primary-gradient);
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
             color: white;
             border-color: transparent;
             box-shadow: 0 6px 18px rgba(74, 144, 226, 0.35);
@@ -904,9 +1047,9 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         }
 
         .view-toggle button.active {
-            background: #007bff;
+            background: #1e40af;
             color: white;
-            border-color: #007bff;
+            border-color: #1e40af;
         }
 
         .view-toggle button:hover:not(.active) {
@@ -924,7 +1067,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             margin: 12px 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             transition: all 0.3s;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #1e40af;
         }
         .message-item:hover {
             box-shadow: 0 4px 15px rgba(0,0,0,0.12);
@@ -1003,7 +1146,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
         /* Message Modal Styles */
         .message-modal-content { border: none; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.2); }
         .message-modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
             color: white;
             border: none;
             padding: 25px 30px;
@@ -1156,8 +1299,8 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
         #composeMessageModal .form-control:focus,
         #composeMessageModal .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+            border-color: #1e40af;
+            box-shadow: 0 0 0 0.25rem rgba(30, 64, 175, 0.15);
         }
 
         #composeMessageModal textarea.form-control {
@@ -1223,15 +1366,15 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                 <div class="main-tabs">
                     <div class="tabs-container">
                         <div class="main-tab <?php echo $current_tab === 'announcements' ? 'active' : ''; ?>" onclick="switchMainTab('announcements', event)">
-                            <i class="bi bi-megaphone-fill"></i> Manage Announcements
+                            <i class="fas fa-bullhorn"></i> Manage Announcements
                         </div>
                         <div class="main-tab <?php echo $current_tab === 'messages' ? 'active' : ''; ?>" onclick="switchMainTab('messages', event)">
-                            <i class="bi bi-chat-left-text-fill"></i> Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
+                            <i class="fas fa-envelope"></i> Messages <?php if ($unread_count > 0) echo '<span class="unread-badge">' . $unread_count . '</span>'; ?>
                         </div>
                     </div>
                     <div class="action-buttons">
                         <button onclick="window.location.reload()" class="btn-refresh" title="Refresh announcements">
-                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                            <i class="fas fa-sync-alt"></i> Refresh
                         </button>
                     </div>
                 </div>
@@ -1247,7 +1390,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                             <input type="hidden" name="tab" value="announcements">
                             <input type="hidden" name="search" value="<?php echo htmlspecialchars($search_query); ?>">
 
-                            <label><i class="bi bi-funnel"></i> Category:</label>
+                            <label><i class="fas fa-filter"></i> Category:</label>
                             <select name="category" onchange="this.form.submit()" class="filter-select">
                                 <option value="">All Categories</option>
                                 <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
@@ -1257,7 +1400,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                 <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>Reminder</option>
                             </select>
 
-                            <label><i class="bi bi-sort-down"></i> Sort by:</label>
+                            <label><i class="fas fa-sort"></i> Sort by:</label>
                             <select name="sort" onchange="this.form.submit()" class="filter-select">
                                 <option value="created_at" <?php echo $sort_by === 'created_at' ? 'selected' : ''; ?>>Posted Date</option>
                                 <option value="event_date" <?php echo $sort_by === 'event_date' ? 'selected' : ''; ?>>Event Date</option>
@@ -1271,31 +1414,33 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                         <input type="hidden" name="category" value="<?php echo htmlspecialchars($category_filter); ?>">
                         <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_by); ?>">
                         <div class="search-input-wrapper">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-search"></i>
                             <input type="text" name="search" placeholder="Search announcements by title or content... (Press Enter)"
                                    value="<?php echo htmlspecialchars($search_query); ?>" class="search-input">
                             <?php if ($search_query): ?>
                                 <a href="?tab=announcements" class="search-clear" title="Clear search">
-                                    <i class="bi bi-x-circle-fill"></i>
+                                    <i class="fas fa-times-circle"></i>
                                 </a>
                             <?php endif; ?>
                         </div>
                     </form>
                 </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="bi bi-megaphone-fill"></i> All Announcements</h3>
-                        <div class="announcement-stats">
-                            Showing <?php echo $announcements->num_rows; ?> of <?php echo $total_announcements; ?> announcements
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-bullhorn"></i> All Announcements</h1>
+                        <p class="page-subtitle">Showing <?php echo $announcements->num_rows; ?> of <?php echo $total_announcements; ?> announcements
                             <?php if ($search_query): ?>
                                 <span class="search-indicator">
-                                    <i class="bi bi-search"></i> Search: "<?php echo htmlspecialchars($search_query); ?>"
+                                    <i class="fas fa-search"></i> Search: "<?php echo htmlspecialchars($search_query); ?>"
                                 </span>
                             <?php endif; ?>
-                        </div>
-                        <button class="btn btn-create" onclick="openAnnouncementModal()">Create New Announcement</button>
+                        </p>
                     </div>
+                    <button class="btn-create" onclick="openAnnouncementModal()">
+                        <i class="fas fa-plus"></i> Create New Announcement
+                    </button>
+                </div>
                     <?php if ($announcements->num_rows > 0): ?>
                         <?php while ($ann = $announcements->fetch_assoc()): ?>
                             <div class="announcement-card <?php echo $ann['type']; ?>">
@@ -1306,7 +1451,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                     </span>
                                     <?php if ($ann['type'] === 'urgent'): ?>
                                         <span class="badge-custom" style="background: #ffebee; color: #c62828;">
-                                            <i class="bi bi-exclamation-triangle"></i> URGENT
+                                            <i class="fas fa-exclamation-triangle"></i> URGENT
                                         </span>
                                     <?php endif; ?>
                                     <span class="badge-custom" style="background: #e3f2fd; color: #1976d2;">
@@ -1326,7 +1471,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                 <?php if ($ann['event_date']): ?>
                                     <div class="announcement-meta">
                                         <div class="meta-item">
-                                            <i class="bi bi-calendar-event"></i>
+                                            <i class="fas fa-calendar-alt"></i>
                                             <strong>Event Date:</strong> <?php echo date('M d, Y, h:i A', strtotime($ann['event_date'])); ?>
                                         </div>
                                     </div>
@@ -1340,7 +1485,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                         </div>
                                             <div class="author-details">
                                                 <div class="author-name">
-                                                    <i class="bi bi-megaphone-fill" title="Announcement"></i>
+                                                    <i class="fas fa-bullhorn" title="Announcement"></i>
                                                     By <?php echo htmlspecialchars($ann['full_name']); ?>
                                                 </div>
                                                 <div class="author-role">Target: <?php echo htmlspecialchars($ann['target_audience']); ?></div>
@@ -1349,16 +1494,16 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                     
                                         <div class="action-buttons">
                                             <button class="btn btn-secondary" title="Message author" onclick="openMessageToAuthor(<?php echo intval($ann['user_id']); ?>, '<?php echo htmlspecialchars($ann['full_name'], ENT_QUOTES); ?>')">
-                                                <i class="bi bi-chat-left-text"></i>
+                                                <i class="fas fa-comment"></i>
                                             </button>
-                                            <button class="btn-edit" onclick='openEditModal(<?php echo json_encode($ann); ?>)'>
-                                                <i class="bi bi-pencil"></i> Edit
+                                            <button class="btn-edit" onclick='return checkEditPermission(<?php echo json_encode($ann); ?>)'>
+                                                <i class="fas fa-edit"></i> Edit
                                             </button>
                                             <form method="POST" style="display:inline;" id="deleteForm_<?php echo $ann['id']; ?>">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="announcement_id" value="<?php echo $ann['id']; ?>">
                                                 <button type="submit" class="btn-delete" onclick="return checkDeletePermission(<?php echo $ann['id']; ?>, '<?php echo $ann['creator_role']; ?>', '<?php echo htmlspecialchars($ann['full_name'], ENT_QUOTES); ?>');">
-                                                    <i class="bi bi-trash"></i> Delete
+                                                    <i class="fas fa-trash"></i> Delete
                                                 </button>
                                             </form>
                                         </div>
@@ -1372,24 +1517,6 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                     <?php endif; ?>
                 </div>
 
-                <?php if ($recent_responses->num_rows > 0): ?>
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Recent Responses</h3>
-                    </div>
-                    <?php while ($response = $recent_responses->fetch_assoc()): ?>
-                        <div class="response-item">
-                            <strong><?php echo htmlspecialchars($response['full_name']); ?></strong> -
-                            <span class="badge"><?php echo ucfirst($response['response_type']); ?></span>
-                            <p><em><?php echo htmlspecialchars($response['announcement_title']); ?></em></p>
-                            <p><?php echo htmlspecialchars($response['response_text']); ?></p>
-                            <small><?php echo date('M d, Y H:i', strtotime($response['responded_at'])); ?></small>
-                        </div>
-                    <?php endwhile; ?>
-                </div>
-                <?php endif; ?>
-                </div>
-
                 <!-- ============================================================================ -->
                 <!-- MESSAGES TAB -->
                 <!-- ============================================================================ -->
@@ -1398,16 +1525,16 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                     <div class="message-tabs-container">
                         <div class="tabs">
                             <button class="tab active" onclick="switchTab('inbox', event)">
-                                <i class="bi bi-inbox-fill"></i> Inbox
+                                <i class="fas fa-inbox"></i> Inbox
                                 <?php if ($unread_count > 0) echo '<span class="tab-badge">' . $unread_count . '</span>'; ?>
                             </button>
                             <button class="tab" onclick="switchTab('sent', event)">
-                                <i class="bi bi-send-fill"></i> Sent
+                                <i class="fas fa-paper-plane"></i> Sent
                             </button>
                         </div>
                         <!-- Compose Message Button -->
                         <button type="button" class="btn-compose-message" data-bs-toggle="modal" data-bs-target="#composeMessageModal">
-                            <i class="bi bi-envelope-plus"></i> Compose New Message
+                            <i class="fas fa-envelope"></i> Compose New Message
                         </button>
                     </div>
 
@@ -1432,16 +1559,16 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                         </div>
 
                         <div class="search-box">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-search"></i>
                             <input type="text" id="messageSearch" placeholder="Search messages..." onkeyup="searchMessages()">
                         </div>
 
                         <div class="view-toggle">
                             <button class="active" onclick="toggleView('list')" title="List View">
-                                <i class="bi bi-list-ul"></i>
+                                <i class="fas fa-list"></i>
                             </button>
                             <button onclick="toggleView('grid')" title="Grid View">
-                                <i class="bi bi-grid-3x3-gap-fill"></i>
+                                <i class="fas fa-th"></i>
                             </button>
                         </div>
                     </div>
@@ -1468,16 +1595,18 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                                     data-is-unread="<?php echo !$msg['is_read'] ? 'true' : 'false'; ?>"
                                                     onclick="viewMessageFromData(this)"
                                                     title="View Full Message">
-                                                    <i class="bi bi-eye"></i> View
+                                                    <i class="fas fa-eye"></i> View
                                                 </button>
                                                 <button class="btn-reply-message"
                                                     data-sender-id="<?php echo $msg['sender_id']; ?>"
                                                     data-sender-name="<?php echo htmlspecialchars($msg['full_name']); ?>"
+                                                    data-sender-role="<?php echo $msg['sender_role']; ?>"
+                                                    data-recipient-id="<?php echo $msg['recipient_id']; ?>"
                                                     data-subject="<?php echo htmlspecialchars($msg['subject']); ?>"
                                                     data-message-id="<?php echo $msg['id']; ?>"
-                                                    onclick="replyToMessageFromData(this)"
+                                                    onclick="return checkReplyPermission(this)"
                                                     title="Reply to Message">
-                                                    <i class="bi bi-reply-fill"></i> Reply
+                                                    <i class="fas fa-reply"></i> Reply
                                                 </button>
                                             </div>
                                         </div>
@@ -1511,7 +1640,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                                     data-direction="To"
                                                     onclick="viewMessageFromData(this)"
                                                     title="View Full Message">
-                                                    <i class="bi bi-eye"></i> View
+                                                    <i class="fas fa-eye"></i> View
                                                 </button>
                                                 <button class="btn-edit-message"
                                                     data-message-id="<?php echo $msg['id']; ?>"
@@ -1520,10 +1649,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                                     data-recipient-id="<?php echo $msg['recipient_id']; ?>"
                                                     onclick="openEditMessageModalFromData(this)"
                                                     title="Edit Message">
-                                                    <i class="bi bi-pencil-square"></i> Edit
+                                                    <i class="fas fa-edit"></i> Edit
                                                 </button>
                                                 <button class="btn-delete-message" onclick="deleteMessage(<?php echo $msg['id']; ?>)" title="Delete Message">
-                                                    <i class="bi bi-trash3"></i> Delete
+                                                    <i class="fas fa-trash"></i> Delete
                                                 </button>
                                             </div>
                                         </div>
@@ -1609,10 +1738,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">
-                        <i class="bi bi-x-circle"></i> Cancel
+                        <i class="fas fa-times"></i> Cancel
                     </button>
                     <button type="submit" class="btn btn-success" id="submitBtn">
-                        <i class="bi bi-megaphone"></i> Create Announcement
+                        <i class="fas fa-bullhorn"></i> Create Announcement
                     </button>
                 </div>
             </form>
@@ -1625,33 +1754,33 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             <div class="modal-content message-modal-content">
                 <div class="modal-header message-modal-header">
                     <h5 class="modal-title" id="viewMessageModalLabel">
-                        <i class="bi bi-envelope-open"></i> Message Details
+                        <i class="fas fa-envelope-open"></i> Message Details
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body message-modal-body">
                     <div class="view-message-content">
                         <div class="mb-3">
-                            <label class="form-label text-muted"><i class="bi bi-person-circle"></i> <span id="viewMessageDirection">From</span></label>
+                            <label class="form-label text-muted"><i class="fas fa-user"></i> <span id="viewMessageDirection">From</span></label>
                             <div class="view-message-field" id="viewMessagePerson"></div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted"><i class="bi bi-tag"></i> Subject</label>
+                            <label class="form-label text-muted"><i class="fas fa-tag"></i> Subject</label>
                             <div class="view-message-field" id="viewMessageSubject"></div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted"><i class="bi bi-calendar3"></i> Date</label>
+                            <label class="form-label text-muted"><i class="fas fa-calendar"></i> Date</label>
                             <div class="view-message-field" id="viewMessageDate"></div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label text-muted"><i class="bi bi-chat-left-text"></i> Message</label>
+                            <label class="form-label text-muted"><i class="fas fa-comment"></i> Message</label>
                             <div class="view-message-field view-message-body" id="viewMessageBody"></div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer message-modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-circle"></i> Close
+                        <i class="fas fa-times"></i> Close
                     </button>
                 </div>
             </div>
@@ -1664,7 +1793,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             <div class="modal-content message-modal-content">
                 <div class="modal-header message-modal-header">
                     <h5 class="modal-title" id="composeMessageModalLabel">
-                        <i class="bi bi-envelope-heart"></i> New Message
+                        <i class="fas fa-envelope"></i> New Message
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -1675,13 +1804,13 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
                         <!-- Reply Info Banner (hidden by default) -->
                         <div id="replyInfoBanner" class="alert alert-info" style="display: none; margin-bottom: 20px; padding: 12px; background: #e7f3ff; border-left: 4px solid #2196F3; border-radius: 8px;">
-                            <i class="bi bi-reply-fill"></i> <strong>Replying to:</strong> <span id="replyToName"></span>
+                            <i class="fas fa-reply"></i> <strong>Replying to:</strong> <span id="replyToName"></span>
                             <button type="button" class="btn-close float-end" onclick="cancelReply()" style="font-size: 12px;"></button>
                         </div>
 
                         <div class="mb-4">
                             <label for="recipient_id" class="form-label">
-                                <i class="bi bi-person-circle"></i> To
+                                <i class="fas fa-user"></i> To
                             </label>
                             <select name="recipient_id" id="recipient_id" class="form-select form-select-lg" required>
                                 <option value="">Choose a recipient...</option>
@@ -1697,7 +1826,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
                         <div class="mb-4">
                             <label for="subject" class="form-label">
-                                <i class="bi bi-tag"></i> Subject
+                                <i class="fas fa-tag"></i> Subject
                             </label>
                             <input type="text" name="subject" id="subject" class="form-control form-control-lg"
                                    placeholder="What's this about?" required>
@@ -1705,21 +1834,21 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
 
                         <div class="mb-3">
                             <label for="message" class="form-label">
-                                <i class="bi bi-chat-left-text"></i> Message
+                                <i class="fas fa-comment"></i> Message
                             </label>
                             <textarea name="message" id="message" class="form-control" rows="8"
                                       placeholder="Write your message here..." required></textarea>
                             <div class="form-text">
-                                <i class="bi bi-info-circle"></i> Be clear and concise in your message
+                                <i class="fas fa-info-circle"></i> Be clear and concise in your message
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer message-modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle"></i> Cancel
+                            <i class="fas fa-times"></i> Cancel
                         </button>
                         <button type="submit" class="btn btn-primary btn-send-message">
-                            <i class="bi bi-send-fill"></i> Send Message
+                            <i class="fas fa-paper-plane"></i> Send Message
                         </button>
                     </div>
                 </form>
@@ -1749,12 +1878,23 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             return confirm('Are you sure you want to delete this announcement?');
         }
 
+        // Check edit permission - prevent editing of teacher-created announcements
+        function checkEditPermission(announcement) {
+            if (announcement.creator_role === 'teacher') {
+                alert('You cannot edit announcements created by teachers.\n\nThis announcement was created by: ' + announcement.full_name + '\n\nOnly the teacher who created it can edit it.');
+                return false; // Prevent opening edit modal
+            }
+            // If created by admin, allow editing
+            openEditModal(announcement);
+            return true;
+        }
+
         // Modal Functions
         function openAnnouncementModal() {
             document.getElementById('announcementModal').style.display = 'block';
             document.getElementById('modalTitle').innerHTML = 'Create New Announcement';
             document.getElementById('formAction').value = 'create';
-            document.getElementById('submitBtn').innerHTML = '<i class="bi bi-megaphone"></i> Create Announcement';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-bullhorn"></i> Create Announcement';
             document.getElementById('announcementForm').reset();
             document.getElementById('announcementId').value = '';
         }
@@ -1763,7 +1903,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             document.getElementById('announcementModal').style.display = 'block';
             document.getElementById('modalTitle').innerHTML = 'Edit Announcement';
             document.getElementById('formAction').value = 'update';
-            document.getElementById('submitBtn').innerHTML = '<i class="bi bi-check-circle"></i> Update Announcement';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check-circle"></i> Update Announcement';
 
             // Fill form with announcement data
             document.getElementById('announcementId').value = announcement.id;
@@ -1895,11 +2035,43 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             document.getElementById('replyToName').textContent = senderName;
 
             // Update modal title
-            document.getElementById('composeMessageModalLabel').innerHTML = '<i class="bi bi-reply-fill"></i> Reply to Message';
+            document.getElementById('composeMessageModalLabel').innerHTML = '<i class="fas fa-reply"></i> Reply to Message';
 
             // Open compose modal
             const composeModal = new bootstrap.Modal(document.getElementById('composeMessageModal'));
             composeModal.show();
+        }
+
+        // Check reply permission - prevent replying to messages not targeted to admin
+        function checkReplyPermission(button) {
+            const senderRole = button.getAttribute('data-sender-role');
+            const senderName = button.getAttribute('data-sender-name');
+            const recipientId = parseInt(button.getAttribute('data-recipient-id'));
+            const adminUserId = <?php echo $user_id; ?>; // Current admin user ID
+            
+            // Check if message was sent TO admin (admin is the recipient)
+            if (recipientId != adminUserId) {
+                alert('You can only reply to messages that were sent to you.\n\nThis message was not sent to you.');
+                return false; // Prevent reply
+            }
+            
+            // If sender is a teacher and message was sent to admin, allow reply
+            // (All messages in inbox are already sent to admin, so this check is mainly for clarity)
+            if (senderRole === 'teacher' && recipientId == adminUserId) {
+                // Allow reply - teacher sent message to admin, admin can reply
+                const senderId = button.getAttribute('data-sender-id');
+                const subject = button.getAttribute('data-subject');
+                const messageId = button.getAttribute('data-message-id');
+                replyToMessage(senderId, senderName, subject, messageId);
+                return true;
+            }
+            
+            // Default: allow reply for other cases
+            const senderId = button.getAttribute('data-sender-id');
+            const subject = button.getAttribute('data-subject');
+            const messageId = button.getAttribute('data-message-id');
+            replyToMessage(senderId, senderName, subject, messageId);
+            return true;
         }
 
         // Helper function to reply from data attributes
@@ -1937,7 +2109,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             document.getElementById('recipient_id').value = '';
             document.getElementById('subject').value = '';
             document.getElementById('replyInfoBanner').style.display = 'none';
-            document.getElementById('composeMessageModalLabel').innerHTML = '<i class="bi bi-envelope-heart"></i> New Message';
+            document.getElementById('composeMessageModalLabel').innerHTML = '<i class="fas fa-envelope"></i> New Message';
         }
 
         // Reset form when modal is closed
@@ -2061,7 +2233,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             // Update compose modal title and show
             const composeLabel = document.getElementById('composeMessageModalLabel');
             if (composeLabel) {
-                composeLabel.innerHTML = '<i class="bi bi-chat-left-text"></i> Message ' + recipientName;
+                composeLabel.innerHTML = '<i class="fas fa-comment"></i> Message ' + recipientName;
             }
             const composeModal = new bootstrap.Modal(document.getElementById('composeMessageModal'));
             composeModal.show();
