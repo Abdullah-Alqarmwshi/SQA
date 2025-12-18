@@ -99,11 +99,12 @@ $sort_by = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
 $quick_filter = isset($_GET['filter']) ? $_GET['filter'] : '';
 
 // Build announcements query with filters - include read status and only show relevant announcements
+// Exclude announcements posted by the current teacher (they should only see their own on manage page)
 $announcements_sql = "SELECT a.*, u.full_name,
                       EXISTS(SELECT 1 FROM announcement_reads ar WHERE ar.announcement_id = a.id AND ar.user_id = $user_id) as is_read
                       FROM announcements a
                       JOIN users u ON a.user_id = u.id
-                      WHERE (a.target_audience = 'All Teachers')";
+                      WHERE (a.target_audience = 'All Teachers' AND a.user_id != $user_id)";
 
 // Add quick filter
 if ($quick_filter === 'unread') {
@@ -132,17 +133,19 @@ $announcements_sql .= " ORDER BY a.$sort_column DESC";
 $announcements = $conn->query($announcements_sql);
 
 // Get total count for stats
-// Total announcements shown on this page are only those targeted to teachers
-$total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements WHERE target_audience = 'All Teachers'")->fetch_assoc()['count'];
+// Total announcements shown on this page are only those targeted to teachers (excluding own announcements)
+$total_announcements = $conn->query("SELECT COUNT(*) as count FROM announcements WHERE target_audience = 'All Teachers' AND user_id != $user_id")->fetch_assoc()['count'];
 
-// Get unread announcements count
+// Get unread announcements count (excluding own announcements)
 $unread_announcements_count = $conn->query("SELECT COUNT(*) as count FROM announcements a
                                             WHERE a.target_audience = 'All Teachers'
+                                            AND a.user_id != $user_id
                                             AND NOT EXISTS(SELECT 1 FROM announcement_reads ar WHERE ar.announcement_id = a.id AND ar.user_id = $user_id)")->fetch_assoc()['count'];
 
-// Get need response count
+// Get need response count (excluding own announcements)
 $need_response_count = $conn->query("SELECT COUNT(*) as count FROM announcements a
                                      WHERE a.target_audience = 'All Teachers'
+                                     AND a.user_id != $user_id
                                      AND a.type = 'need_response'
                                      AND NOT EXISTS(SELECT 1 FROM announcement_responses ar WHERE ar.announcement_id = a.id AND ar.user_id = $user_id)")->fetch_assoc()['count'];
 

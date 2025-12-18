@@ -2,6 +2,13 @@
 session_start();
 require_once 'config/database.php';
 
+// Check if database tables exist, if not redirect to setup
+$tables_check = $conn->query("SHOW TABLES LIKE 'users'");
+if ($tables_check->num_rows == 0) {
+    header('Location: setup.php');
+    exit;
+}
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
