@@ -11,12 +11,12 @@ $student_name = $_SESSION['full_name'];
 // Prepare base query with submission status
 $query = "SELECT a.*, u.full_name as teacher_name,
          CASE 
-            WHEN (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) IS NOT NULL THEN 'graded'
-            WHEN (SELECT id FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) IS NOT NULL THEN 'submitted'
+            WHEN (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) IS NOT NULL THEN 'graded'
+            WHEN (SELECT id FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) IS NOT NULL THEN 'submitted'
             ELSE 'pending'
          END as submission_status,
-         (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) as grade,
-         (SELECT feedback FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ?) as feedback
+         (SELECT grade FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) as grade,
+         (SELECT feedback FROM submissions s WHERE s.assignment_id = a.id AND s.student_id = ? LIMIT 1) as feedback
          FROM assignments a
          JOIN users u ON a.teacher_id = u.id
          WHERE 1=1";
@@ -506,19 +506,19 @@ while($row = $result->fetch_assoc()) {
                                             </div>
                                             <div>
                                                 <i class="fas fa-calendar"></i>
-                                                <span><?php echo date('M j, Y', strtotime($assignment['due_date'])); ?></span>
+                                                <span><?php echo date('M j, Y g:i A', strtotime($assignment['due_date'])); ?></span>
                                             </div>
                                             <?php if ($is_past_due): ?>
                                             <div>
                                                 <span class="badge bg-danger">
-                                                    <i class="fas fa-exclamation-circle" style="margin-right: 4px;"></i>
+                                                    <i class="fas fa-calendar-times" style="margin-right: 6px; color: white;"></i>
                                                     Past Due
                                                 </span>
                                             </div>
                                             <?php elseif ($is_due_soon): ?>
                                             <div>
                                                 <span class="badge bg-warning">
-                                                    <i class="fas fa-clock" style="margin-right: 4px;"></i>
+                                                    <i class="fas fa-clock" style="margin-right: 6px; color: white;"></i>
                                                     Due Soon
                                                 </span>
                                             </div>

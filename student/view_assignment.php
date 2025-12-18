@@ -36,7 +36,9 @@ $is_overdue = strtotime($assignment['due_date']) < time();
 // Check if student has already submitted and get submission details including grade and feedback
 $stmt = $conn->prepare("SELECT s.*, DATE_FORMAT(s.submitted_at, '%M %d, %Y %h:%i %p') as formatted_date 
                        FROM submissions s 
-                       WHERE s.assignment_id = ? AND s.student_id = ?");
+                       WHERE s.assignment_id = ? AND s.student_id = ?
+                       ORDER BY s.submitted_at DESC
+                       LIMIT 1");
 $stmt->bind_param("ii", $assignment_id, $student_id);
 $stmt->execute();
 $submission_result = $stmt->get_result();
@@ -457,7 +459,7 @@ $submission = $has_submitted ? $submission_result->fetch_assoc() : null;
                             <?php if (!empty($submission['file_path'])): ?>
                                 <?php
                                 $submission_file = basename($submission['file_path']);
-                                $download_url = '../api/download_file.php?file_path=' . urlencode($submission['file_path']);
+                                $download_url = '../api/download_file.php?type=submission&id=' . $submission['id'];
                                 ?>
                                 <div style="margin-top: 12px;">
                                     <div class="meta-label">Submitted File</div>
