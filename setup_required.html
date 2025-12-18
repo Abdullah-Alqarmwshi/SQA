@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Required - ClassConnect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .setup-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-align: center;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .warning strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .steps {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .steps h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .steps ol {
+            margin-left: 20px;
+        }
+        .steps li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            color: #0c5460;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <h1>⚙️ Database Setup Required</h1>
+        
+        <div class="warning">
+            <strong>⚠️ Database Not Initialized</strong>
+            Your ClassConnect database needs to be set up before you can use the system.
+        </div>
+
+        <div class="steps">
+            <h3>Setup Instructions:</h3>
+            <ol>
+                <li><strong>Make sure XAMPP MySQL is running</strong>
+                    <br>Open XAMPP Control Panel and start MySQL if it's not already running.
+                </li>
+                <li><strong>Click the button below to initialize the database</strong>
+                    <br>This will create all necessary tables and the default admin account.
+                </li>
+                <li><strong>Login with the default admin account</strong>
+                    <br>Username: <code>admin</code>
+                    <br>Password: <code>admin123</code>
+                </li>
+            </ol>
+        </div>
+
+        <div class="info-box">
+            <strong>What happens when you click "Initialize Database"?</strong>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Creates the classconnect database</li>
+                <li>Creates all required tables (users, assignments, lessons, etc.)</li>
+                <li>Sets up the default admin account</li>
+                <li>Configures all database relationships</li>
+            </ul>
+        </div>
+
+        <a href="database/reset_database.php" class="btn">
+            🚀 Initialize Database Now
+        </a>
+
+        <div style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
+            This is a one-time setup process
+        </div>
+    </div>
+</body>
+</html>
