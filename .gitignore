@@ -69,3 +69,4 @@ data_old/
 # MySQL fix scripts (optional - uncomment if you don't want these in repo)
 # QUICK_FIX_MYSQL.bat
 # fix_mysql*.bat
+config/database.php
