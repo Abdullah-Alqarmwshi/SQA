@@ -862,6 +862,72 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             font-size: 16px;
         }
 
+        /* Search Form Styling */
+        .search-form {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrapper i.fas.fa-search {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1e40af;
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .search-input-wrapper .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+            font-weight: 500;
+        }
+
+        .search-input-wrapper .search-input:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .search-input-wrapper .search-input::placeholder {
+            color: var(--light-text);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-clear:hover {
+            color: #dc3545;
+        }
+
         .view-toggle {
             display: flex;
             gap: 0;
@@ -1119,11 +1185,12 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             display: flex;
             align-items: center;
         }
-        .search-input-wrapper i.bi-search {
+        .search-input-wrapper i.fas.fa-search {
             position: absolute;
             left: 15px;
-            color: #999;
-            font-size: 18px;
+            color: #1e40af;
+            font-size: 16px;
+            z-index: 2;
         }
         .search-input {
             width: 100%;
@@ -1254,7 +1321,13 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.08);
         }
         .filter-select {
             padding: 8px 12px;
@@ -1379,6 +1452,11 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             .form-row { grid-template-columns: 1fr; }
             .search-form {
                 flex-direction: column;
+                width: 100%;
+                max-width: 100%;
+            }
+            .search-input-wrapper {
+                width: 100%;
             }
             .btn-search {
                 width: 100%;
@@ -1390,6 +1468,21 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             .filter-section {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 15px;
+            }
+            .filter-group {
+                width: 100%;
+            }
+            .filter-group form {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+            }
+            .filter-group label {
+                width: 100%;
+            }
+            .filter-group select {
+                width: 100%;
             }
             .action-buttons {
                 width: 100%;
@@ -1478,7 +1571,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                 <input type="hidden" name="search" value="<?php echo htmlspecialchars($search_query); ?>">
                                 <input type="hidden" name="filter" value="<?php echo htmlspecialchars($quick_filter); ?>">
 
-                                <label><i class="fas fa-filter"></i> Category:</label>
+                                <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-dark); margin: 0;"><i class="fas fa-filter"></i> Category:</label>
                                 <select name="category" onchange="this.form.submit()" class="filter-select">
                                     <option value="">All Categories</option>
                                     <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
@@ -1488,7 +1581,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                     <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>⏰ Reminder</option>
                                 </select>
 
-                                <label><i class="fas fa-sort"></i> Sort by:</label>
+                                <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-dark); margin: 0;"><i class="fas fa-sort"></i> Sort by:</label>
                                 <select name="sort" onchange="this.form.submit()" class="filter-select">
                                     <option value="created_at" <?php echo $sort_by === 'created_at' ? 'selected' : ''; ?>>Posted Date</option>
                                     <option value="event_date" <?php echo $sort_by === 'event_date' ? 'selected' : ''; ?>>Event Date</option>
@@ -1504,9 +1597,9 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                             <div class="search-input-wrapper">
                                 <i class="fas fa-search"></i>
                                 <input type="text" name="search" placeholder="Search announcements by title or content..."
-                                       value="<?php echo htmlspecialchars($search_query); ?>" class="search-input">
+                                       value="<?php echo htmlspecialchars($search_query); ?>" class="search-input" autocomplete="off">
                                 <?php if ($search_query): ?>
-                                    <a href="?tab=announcements" class="search-clear" title="Clear search">
+                                    <a href="?tab=announcements&category=<?php echo urlencode($category_filter); ?>&sort=<?php echo urlencode($sort_by); ?>&filter=<?php echo urlencode($quick_filter); ?>" class="search-clear" title="Clear search">
                                         <i class="fas fa-times-circle"></i>
                                     </a>
                                 <?php endif; ?>
@@ -1785,7 +1878,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                         </div>
 
                         <div class="search-box">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-search"></i>
                             <input type="text" id="messageSearch" placeholder="Search messages..." onkeyup="searchMessages()">
                         </div>
 
