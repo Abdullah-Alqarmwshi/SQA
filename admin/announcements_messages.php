@@ -282,7 +282,11 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             --warning-color: #f59e0b;
             --light-bg: #f8fafc;
             --lighter-bg: #f1f5f9;
+            --bg-white: #ffffff;
+            --bg-light: #f8fafc;
             --dark-text: #1e293b;
+            --text-dark: #1e293b;
+            --text-medium: #64748b;
             --light-text: #64748b;
             --border-color: #e2e8f0;
         }
@@ -756,50 +760,63 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             box-shadow: 0 2px 12px rgba(74, 144, 226, 0.08);
             border: 2px solid var(--border-color);
         }
+        /* Search Form Styling */
         .search-form {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
         }
         .search-input-wrapper {
             position: relative;
-            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
         }
-        .search-input-wrapper i {
+        .search-input-wrapper i.fas.fa-search {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--primary-color);
-            font-size: 18px;
+            color: #1e40af;
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 2;
         }
-        .search-input {
+        .search-input-wrapper .search-input {
             width: 100%;
             padding: 12px 45px 12px 45px;
             border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 15px;
+            border-radius: 10px;
+            font-size: 14px;
             transition: all 0.3s;
+            background: white;
+            font-weight: 500;
         }
-        .search-input:focus {
+        .search-input-wrapper .search-input:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        .search-input-wrapper .search-input::placeholder {
+            color: var(--light-text);
         }
         .search-clear {
             position: absolute;
             right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             color: #999;
-            font-size: 18px;
+            text-decoration: none;
             cursor: pointer;
+            font-size: 18px;
             transition: color 0.3s;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .search-clear:hover {
-            color: var(--danger-color);
-        }
-        /* Search input styles */
-        .search-input {
-            padding: 12px 40px 12px 40px !important;
+            color: #dc3545;
         }
 
         /* Filter Section */
@@ -808,13 +825,13 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
             background: var(--bg-white);
-            padding: 15px 20px;
+            padding: 20px;
             border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 12px rgba(74, 144, 226, 0.08);
+            margin-bottom: 25px;
             border: 2px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.08);
         }
         .filter-group {
             display: flex;
@@ -830,16 +847,20 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
             gap: 5px;
         }
         .filter-select {
-            padding: 8px 12px;
+            padding: 10px 15px;
             border: 2px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
             font-size: 14px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
             background: white;
+            cursor: pointer;
         }
         .filter-select:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
         }
         .btn-refresh {
             padding: 10px 16px;
@@ -1389,8 +1410,9 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                         <form method="GET" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <input type="hidden" name="tab" value="announcements">
                             <input type="hidden" name="search" value="<?php echo htmlspecialchars($search_query); ?>">
+                            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_by); ?>">
 
-                            <label><i class="fas fa-filter"></i> Category:</label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-dark); margin: 0;"><i class="fas fa-filter"></i> Category:</label>
                             <select name="category" onchange="this.form.submit()" class="filter-select">
                                 <option value="">All Categories</option>
                                 <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
@@ -1400,11 +1422,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                 <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>Reminder</option>
                             </select>
 
-                            <label><i class="fas fa-sort"></i> Sort by:</label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-dark); margin: 0;"><i class="fas fa-sort"></i> Sort by:</label>
                             <select name="sort" onchange="this.form.submit()" class="filter-select">
                                 <option value="created_at" <?php echo $sort_by === 'created_at' ? 'selected' : ''; ?>>Posted Date</option>
                                 <option value="event_date" <?php echo $sort_by === 'event_date' ? 'selected' : ''; ?>>Event Date</option>
-                                <option value="title" <?php echo $sort_by === 'title' ? 'selected' : ''; ?>>Title</option>
                             </select>
                         </form>
                     </div>
@@ -1415,10 +1436,10 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                         <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_by); ?>">
                         <div class="search-input-wrapper">
                             <i class="fas fa-search"></i>
-                            <input type="text" name="search" placeholder="Search announcements by title or content... (Press Enter)"
-                                   value="<?php echo htmlspecialchars($search_query); ?>" class="search-input">
+                            <input type="text" name="search" placeholder="Search announcements by title or content..."
+                                   value="<?php echo htmlspecialchars($search_query); ?>" class="search-input" autocomplete="off">
                             <?php if ($search_query): ?>
-                                <a href="?tab=announcements" class="search-clear" title="Clear search">
+                                <a href="?tab=announcements&category=<?php echo urlencode($category_filter); ?>&sort=<?php echo urlencode($sort_by); ?>" class="search-clear" title="Clear search">
                                     <i class="fas fa-times-circle"></i>
                                 </a>
                             <?php endif; ?>

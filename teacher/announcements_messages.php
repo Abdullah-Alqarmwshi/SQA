@@ -653,55 +653,63 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
             box-shadow: 0 2px 12px rgba(74, 144, 226, 0.08);
             border: 2px solid var(--border-color);
         }
+        /* Search Form Styling */
         .search-form {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
         }
         .search-input-wrapper {
             position: relative;
-            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
         }
-        .search-input-wrapper i {
+        .search-input-wrapper i.fas.fa-search {
             position: absolute;
-            /* move search icon to the right inside the input and avoid overlap with the clear button */
-            right: 22px;
-            left: auto;
+            left: 15px;
             top: 50%;
             transform: translateY(-50%);
             color: #1e40af;
-            font-size: 18px;
-            /* Let clicks go to the input (icon should not block pointer/caret) */
+            font-size: 16px;
             pointer-events: none;
             z-index: 2;
         }
-        .search-input {
+        .search-input-wrapper .search-input {
             width: 100%;
             padding: 12px 45px 12px 45px;
             border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 15px;
+            border-radius: 10px;
+            font-size: 14px;
             transition: all 0.3s;
+            background: white;
+            font-weight: 500;
         }
-        .search-input:focus {
+        .search-input-wrapper .search-input:focus {
             outline: none;
             border-color: #1e40af;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+        .search-input-wrapper .search-input::placeholder {
+            color: var(--light-text);
         }
         .search-clear {
             position: absolute;
             right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             color: #999;
-            font-size: 18px;
+            text-decoration: none;
             cursor: pointer;
+            font-size: 18px;
             transition: color 0.3s;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .search-clear:hover {
-            color: var(--danger-color);
-        }
-        /* Search input styles */
-        .search-input {
-            padding: 12px 40px 12px 40px !important;
+            color: #dc3545;
         }
 
         /* Quick Filters */
@@ -1428,54 +1436,45 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role = '
 
                 <!-- Filter Section -->
                 <div class="filter-section">
-                    <div class="filter-row">
-                        
-                        <!-- Filter controls -->
-                        <form method="GET" class="filter-group">
+                    <div class="filter-group">
+                        <form method="GET" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <input type="hidden" name="tab" value="announcements">
                             <input type="hidden" name="search" value="<?php echo htmlspecialchars($search_query); ?>">
                             <input type="hidden" name="filter" value="<?php echo htmlspecialchars($quick_filter); ?>">
-                            
-                            <div class="filter-group">
-                                <label><i class="fas fa-filter"></i> Category</label>
-                                <select name="category" onchange="this.form.submit()" class="filter-select">
-                                    <option value="">All Categories</option>
-                                    <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
-                                    <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>Event</option>
-                                    <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>General Notice</option>
-                                    <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>Administrative</option>
-                                    <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>Reminder</option>
-                                </select>
-                            </div>
 
-                            <div class="filter-group">
-                                <label><i class="fas fa-sort"></i> Sort by</label>
-                                <select name="sort" onchange="this.form.submit()" class="filter-select">
-                                    <option value="created_at" <?php echo $sort_by === 'created_at' ? 'selected' : ''; ?>>Posted Date</option>
-                                    <option value="event_date" <?php echo $sort_by === 'event_date' ? 'selected' : ''; ?>>Event Date</option>
-                                </select>
-                            </div>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-dark); margin: 0;"><i class="fas fa-filter"></i> Category:</label>
+                            <select name="category" onchange="this.form.submit()" class="filter-select">
+                                <option value="">All Categories</option>
+                                <option value="Academic" <?php echo $category_filter === 'Academic' ? 'selected' : ''; ?>>Academic</option>
+                                <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>Event</option>
+                                <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>General Notice</option>
+                                <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>Administrative</option>
+                                <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>Reminder</option>
+                            </select>
+
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-dark); margin: 0;"><i class="fas fa-sort"></i> Sort by:</label>
+                            <select name="sort" onchange="this.form.submit()" class="filter-select">
+                                <option value="created_at" <?php echo $sort_by === 'created_at' ? 'selected' : ''; ?>>Posted Date</option>
+                                <option value="event_date" <?php echo $sort_by === 'event_date' ? 'selected' : ''; ?>>Event Date</option>
+                            </select>
                         </form>
                     </div>
                     <!-- Search Bar -->
-                    <form method="GET" class="search-form" id="searchForm">
+                    <form method="GET" class="search-form">
                         <input type="hidden" name="tab" value="announcements">
                         <input type="hidden" name="category" value="<?php echo htmlspecialchars($category_filter); ?>">
                         <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_by); ?>">
                         <input type="hidden" name="filter" value="<?php echo htmlspecialchars($quick_filter); ?>">
                         <div class="search-input-wrapper">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" 
-                                   name="search" 
-                                   placeholder="Search announcements by..." 
-                                   value="<?php echo htmlspecialchars($search_query); ?>" 
-                                   class="search-input">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="search" placeholder="Search announcements by title or content..."
+                                   value="<?php echo htmlspecialchars($search_query); ?>" class="search-input" autocomplete="off">
                             <?php if ($search_query): ?>
-                                <a href="?tab=announcements" class="search-clear" title="Clear search">
+                                <a href="?tab=announcements&category=<?php echo urlencode($category_filter); ?>&sort=<?php echo urlencode($sort_by); ?>&filter=<?php echo urlencode($quick_filter); ?>" class="search-clear" title="Clear search">
                                     <i class="fas fa-times-circle"></i>
                                 </a>
                             <?php endif; ?>
-                        </div>
+                        </div>                        
                     </form>
                 </div>
 

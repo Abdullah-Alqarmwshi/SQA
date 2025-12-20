@@ -1578,7 +1578,7 @@ $recipients = $conn->query("SELECT id, full_name, role FROM users WHERE role IN 
                                     <option value="Event" <?php echo $category_filter === 'Event' ? 'selected' : ''; ?>>Event</option>
                                     <option value="General Notice" <?php echo $category_filter === 'General Notice' ? 'selected' : ''; ?>>General Notice</option>
                                     <option value="Administrative" <?php echo $category_filter === 'Administrative' ? 'selected' : ''; ?>>Administrative</option>
-                                    <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>>⏰ Reminder</option>
+                                    <option value="Reminder" <?php echo $category_filter === 'Reminder' ? 'selected' : ''; ?>> Reminder</option>
                                 </select>
 
                                 <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-dark); margin: 0;"><i class="fas fa-sort"></i> Sort by:</label>
